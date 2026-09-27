@@ -304,6 +304,30 @@
   .ability-note {
     margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.35; font-weight: 700;
   }
+  /* 100,000 m milestone room */
+  .victory-overlay {
+    align-items: center;
+    padding: 20px;
+    background: rgba(8, 22, 20, .28);
+  }
+  .victory-card {
+    max-width: 390px;
+    animation: none;
+    background: var(--panel);
+    border-radius: 30px;
+    padding: 22px 22px 20px;
+  }
+  .victory-card h2 { font-size: 40px; color: #FFD86B; text-shadow: 2px 2px 0 #12302C; }
+  .victory-card .big { font-size: 58px; margin-top: 6px; }
+  .victory-choice { margin-top: 10px; font-weight: 800; color: var(--muted); }
+  .victory-room-note { margin: 6px 0 0; font-weight: 700; color: var(--muted); line-height: 1.35; }
+  .moon-card { max-width: 360px; pointer-events: auto; }
+  .moon-card h2 { color: #F8F1D4; }
+  .victory-card { pointer-events: none; }
+  .victory-overlay { pointer-events: none; }
+  #moonScene { pointer-events: auto; background: #17352D; }
+  #moonScene .victory-card { pointer-events: auto; }
+
   .btn {
     margin-top: 18px;
     width: 100%;
@@ -477,7 +501,7 @@
   <div class="mtop">
     <h1>Beanbound</h1>
     <p class="tag">Grow a beanstalk from deep underground all the way to space.</p>
-    <p class="tag" style="opacity:.6;font-size:.8em;margin-top:-8px;">V1.0.3</p>
+    <p class="tag" style="opacity:.6;font-size:.8em;margin-top:-8px;">V1.0.4</p>
   </div>
   <div class="mbottom">
     <div class="stack">
@@ -587,7 +611,7 @@
     <h2 id="aboutTitle">About Beanbound</h2>
     <p class="lead">A tiny game about growing a bean all the way to space.</p>
     <div class="settings-list">
-      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.3 — Third release</span></div></div>
+      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.4 — Third release</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Developer</b><span>VC Games</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Saved data</b><span>Your progress and settings are stored locally on this device.</span></div></div>
     </div>
@@ -631,6 +655,24 @@
   </div>
 </div>
 
+<div id="victoryRoom" class="overlay solid victory-overlay hidden" aria-hidden="true">
+  <div class="card victory-card">
+    <h2 id="victoryTitle">Congratulations, you made it!</h2>
+    <div class="big" id="victoryScore">100,000</div>
+    <p class="best">Steer into a choice.</p>
+  </div>
+</div>
+
+<div id="moonScene" class="overlay solid victory-overlay hidden" role="dialog" aria-labelledby="moonTitle">
+  <div class="card victory-card moon-card">
+    <h2 id="moonTitle">MOON COMING SOON!</h2>
+    <p class="best">The Moon isn't ready yet.</p>
+    <div class="stack">
+      <button id="moonPlayAgain" class="btn">Go back</button>
+    </div>
+  </div>
+</div>
+
 <div id="count" class="hidden">3</div>
 
 <script>
@@ -645,6 +687,7 @@
   const hudEl = $('hud'), scoreEl = $('score'), hudBest = $('hudBest'), muteBtn = $('mute'), hintEl = $('hint');
   const waterEl = $('water'), waterFill = $('waterFill'), layerPill = $('layerPill'), abilityPill = $('abilityPill');
   const startEl = $('start'), overEl = $('over'), howEl = $('how'), evosEl = $('evos'), pauseEl = $('pause'), countEl = $('count'), settingsEl = $('settings'), endlessInfoEl = $('endlessInfo'), aboutEl = $('about');
+  const victoryRoomEl = $('victoryRoom'), moonSceneEl = $('moonScene');
   const hapticToggle = $('hapticToggle'), soundToggle = $('soundToggle');
 
   let W = 360;                   // world width: 360 in portrait, wider on a phone held sideways
@@ -818,7 +861,7 @@
   function buzz(ms) { try { if (haptics && navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
 
   // ---------- state ----------
-  let state = 'menu';            // menu | play | over
+  let state = 'menu';            // menu | play | over | victory | moon
   let P, tx = W / 2, ptr = null, hinted = false;
   let trail, leaves, obst, drops, parts, floaters, showers;
   let cam = 0, dist = 0, water = 100, shield = false, shieldTime = 0, invuln = 0, bonus = 0, time = 0, tmNow = 0;
@@ -831,6 +874,9 @@
   let dived = false, landed2 = false, coat = false, won = false, layer = 0, curEvo = 0, cdT = 0, runStartM = 0;
   let mnT = 0, mnAcc = { leaf: 0, curl: 0, flower: 0, pod: 0 }, menuFade = 1;
   let stage = 0, lastCurlDist = 0, lastFlowerDist = 0, lastPodDist = 0;
+  let victoryX = 0, victoryDone = false;
+  const VICTORY_SPEED = 210;
+
   // How grown the plant looks: features unlock with height (in meters)
   const STAGES = [{ m: 0, name: 'Seedling' }, { m: 1200, name: 'Vining!' }, { m: 9000, name: 'Flowering!' }, { m: 30000, name: 'Bean pods!' }];
   const FLOWER_COLS = ['#FFFFFF', '#FF9EC4', '#C6A8FF'];
@@ -1256,8 +1302,15 @@
     if (water <= 0 && state === 'play') die('wilt');
 
     score = Math.floor(meters) + bonus;
+    if (dist >= END_PX && state === 'play') {
+      // Stop exactly at the milestone so the victory score is 100,000 m, not an overshoot.
+      dist = END_PX;
+      P.y = -END_PX;
+      score = END_M;
+      die('win');
+      return;
+    }
     updateHud(false);
-    if (dist >= END_PX && state === 'play') die('win');      // space!
   }
 
   function updateHud(force) {
@@ -1620,7 +1673,7 @@
     musicLevel = MUSIC_GAME;
     applyMusicVolume(0.8);
     reset();
-    hide(startEl); hide(overEl); hide(pauseEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(countEl);
+    hide(startEl); hide(overEl); hide(pauseEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
     hudEl.classList.add('hidden');
     state = 'intro';
     requestWakeLock();
@@ -1631,9 +1684,10 @@
   }
 
   function toMenu() {
-    hide(pauseEl); hide(overEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(countEl);
+    hide(pauseEl); hide(overEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
     hudEl.classList.add('hidden'); hintEl.classList.add('hidden');
     ptr = null;
+    victoryDone = false;
     reset();
     state = 'menu';
     releaseWakeLock();
@@ -1828,12 +1882,18 @@
   const TITLES = { rock: 'Hit a rock', crow: 'Pecked by a crow', balloon: 'Bumped a balloon', cloud: 'Bonked a cloud', storm: 'Zapped by lightning', wilt: 'You wilted', win: 'You reached space!' };
   function die(kind) {
     if (state !== 'play') return;
-    state = 'over';
-    releaseWakeLock();
     won = kind === 'win';
+    state = won ? 'victory' : 'over';
+    releaseWakeLock();
     if (won) {
-      sfx.win(); buzz(90);
-      for (const c of ['#FFD86B', '#FF9EC4', '#8FD8FF', '#B6F2A0', '#FFFFFF']) burst(P.x, P.y, c, 16, 340);
+      // The big milestone is a celebration, not a normal game-over screen.
+      sfx.win(); buzz(120);
+      curEvo = 0;
+      P.x = W / 2; P.y = 0; P.vx = 0; P.ang = 0; P.sq = 0; P.open = 1;
+      dist = END_PX;
+      score = END_M;
+      maxM = Math.max(maxM, END_M);
+      for (const c of ['#FFD86B', '#FF9EC4', '#8FD8FF', '#B6F2A0', '#FFFFFF']) burst(W / 2, -END_PX, c, 22, 420);
     } else {
       sfx.die(); buzz(70);
       burst(P.x, P.y, '#5FD38D', 16, 250);
@@ -1842,18 +1902,30 @@
     hudEl.classList.add('hidden');
     hintEl.classList.add('hidden');
     ptr = null;
-    score = Math.floor(dist / UNIT) + bonus;
+    if (!won) score = Math.floor(dist / UNIT) + bonus;
     const isBest = score > best;
     if (isBest) best = score;
     maxM = Math.max(maxM, Math.floor(dist / UNIT));
     saveProgress();
-    const fresh = EVOS.filter(e => e.m > runStartM && e.m <= maxM);      // forms unlocked during this run
+    const fresh = EVOS.filter(e => e.m > runStartM && e.m <= maxM);
+    if (won) {
+      hide(overEl);
+      hide(victoryRoomEl);
+      hide(moonSceneEl);
+      victoryX = vw / 2;
+      victoryDone = false;
+      P.x = W / 2;
+      P.vx = 0;
+      tx = P.x;
+      keys.l = keys.r = false;
+      return;
+    }
     $('overTitle').textContent = TITLES[kind] || 'You fell';
     $('finalScore').textContent = fmt(score);
-    $('statLine').textContent = won ? 'You grew all the way to space!' : 'Grew ' + fmt(Math.floor(dist / UNIT)) + ' m as a ' + EVOS[curEvo].name;
+    $('statLine').textContent = 'Grew ' + fmt(Math.floor(dist / UNIT)) + ' m as a ' + EVOS[curEvo].name;
     $('evoLine').innerHTML = fresh.length ? '<span class="badge">' + (fresh.length > 1 ? fresh.length + ' new evolutions, latest: ' : 'New evolution: ') + fresh[fresh.length - 1].name + '</span>' : '';
     $('bestLine').innerHTML = isBest ? '<span class="badge">New best!</span>' : 'Best ' + fmt(best);
-    setTimeout(() => { if (state === 'over') overEl.classList.remove('hidden'); }, won ? 1600 : 500);
+    setTimeout(() => { if (state === 'over') overEl.classList.remove('hidden'); }, 500);
   }
 
   function updateBestStart() {
@@ -1863,6 +1935,12 @@
   // ---------- input ----------
   cv.addEventListener('pointerdown', e => {
     if (state === 'intro') { e.preventDefault(); if (introT > 0.5) skipIntro(); return; }
+    if (state === 'victory') {
+      e.preventDefault();
+      try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+      ptr = { id: e.pointerId, sx: e.clientX, spx: victoryX };
+      return;
+    }
     if (state !== 'play') return;
     e.preventDefault();
     try { cv.setPointerCapture(e.pointerId); } catch (err) {}
@@ -1871,6 +1949,12 @@
   });
   cv.addEventListener('pointermove', e => {
     if (!ptr || e.pointerId !== ptr.id) return;
+    if (state === 'victory') {
+      const raw = ptr.spx + ((e.clientX - ptr.sx) / Math.max(1, scale)) * 1.4;
+      victoryX = clamp(raw, 40, vw - 40);
+      ptr.spx = victoryX; ptr.sx = e.clientX;
+      return;
+    }
     const raw = ptr.spx + ((e.clientX - ptr.sx) / scale) * 1.4;
     const c = clamp(raw, 16, W - 16);
     if (c !== raw) ptr.sx += ((raw - c) / 1.4) * scale;   // no dead zone at the walls
@@ -1934,6 +2018,8 @@
     }
   });
   $('again').addEventListener('click', () => startGame());
+  // The victory room is controlled by steering into the two choices on the canvas.
+  $('moonPlayAgain').addEventListener('click', () => { toMenu(); });
   $('openEvos').addEventListener('click', () => { buildEvos(); hide(startEl); show(evosEl); });
   $('evosBack').addEventListener('click', () => { hide(evosEl); show(startEl); });
   $('openHow').addEventListener('click', () => { hide(startEl); $('seedInfoPanel').classList.add('hidden'); $('seedPackInfoBtn').setAttribute('aria-expanded', 'false'); show(howEl); });
@@ -2729,7 +2815,61 @@
     }
   }
 
+  function drawVictoryScene(tm, moon = false) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!moon) {
+      const wall = ctx.createLinearGradient(0, 0, 0, vh);
+      wall.addColorStop(0, '#5C8B74'); wall.addColorStop(1, '#355B4B');
+      ctx.fillStyle = wall; ctx.fillRect(0, 0, vw, vh);
+      ctx.fillStyle = '#876447'; ctx.fillRect(0, vh * .74, vw, vh * .26);
+      ctx.strokeStyle = '#12302C'; ctx.lineWidth = 5; ctx.strokeRect(18, 18, vw - 36, vh - 36);
+
+      ctx.textAlign = 'center';
+      ctx.font = "42px 'Bagel Fat One', 'Trebuchet MS', sans-serif";
+      ctx.lineWidth = 8; ctx.strokeStyle = INK; ctx.strokeText('Congratulations, you made it!', vw / 2, vh * .16);
+      ctx.fillStyle = '#FFD86B'; ctx.fillText('Congratulations, you made it!', vw / 2, vh * .16);
+      ctx.font = "24px 'Bagel Fat One', 'Trebuchet MS', sans-serif";
+      ctx.fillStyle = '#FFFFFF'; ctx.lineWidth = 5; ctx.strokeStyle = INK;
+      ctx.strokeText('Steer into a choice', vw / 2, vh * .23);
+      ctx.fillText('Steer into a choice', vw / 2, vh * .23);
+
+      const targetW = Math.min(150, vw * 0.34), targetH = Math.min(210, vh * 0.34), y = vh * .43;
+      const leftX = vw * .22, rightX = vw * .78;
+      function sign(cx, fill, title, sub) {
+        ctx.fillStyle = fill;
+        ctx.strokeStyle = INK; ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.roundRect(cx - targetW/2, y - targetH/2, targetW, targetH, 22); ctx.fill(); ctx.stroke();
+        ctx.textAlign = 'center';
+        ctx.font = "28px 'Bagel Fat One', 'Trebuchet MS', sans-serif";
+        ctx.fillStyle = '#FFFFFF'; ctx.lineWidth = 6; ctx.strokeStyle = INK;
+        ctx.strokeText(title, cx, y - 8); ctx.fillText(title, cx, y - 8);
+        ctx.font = "18px 'Trebuchet MS', sans-serif";
+        ctx.strokeText(sub, cx, y + 26); ctx.fillText(sub, cx, y + 26);
+      }
+      sign(leftX, '#566B9C', 'GO TO THE', 'MOON');
+      sign(rightX, '#FFD86B', 'GO BACK', 'MAIN MENU');
+
+      ctx.fillStyle = 'rgba(18,48,44,.22)'; ctx.beginPath(); ctx.ellipse(victoryX, vh * .72, 42, 10, 0, 0, Math.PI * 2); ctx.fill();
+      drawShoot(victoryX, vh * .67, 0, 0, 0, tm, 1, false, 1.15, EVOS[0]);
+
+      ctx.font = "16px 'Trebuchet MS', sans-serif";
+      ctx.fillStyle = 'rgba(255,255,255,.82)';
+      ctx.fillText('Drag left or right', vw / 2, vh * .91);
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function render(tm) {
+    if (state === 'victory') {
+      drawVictoryScene(tm, false);
+      return;
+    }
+    if (state === 'moon') {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = '#17352D';
+      ctx.fillRect(0, 0, vw, vh);
+      return;
+    }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawSky(tm);
     const camDraw = cam;
@@ -2775,6 +2915,40 @@
     }
   }
 
+  // ---------- victory room ----------
+  // Move the seedling left/right with the same controls as the main game.
+  // Touch/drag on mobile updates victoryX; the keyboard works on PC.
+  function stepVictory(dt) {
+    const dir = (keys.l ? -1 : 0) + (keys.r ? 1 : 0);
+    if (dir) victoryX += dir * VICTORY_SPEED * dt;
+    victoryX = clamp(victoryX, 40, vw - 40);
+
+    const targetW = Math.min(150, vw * 0.34);
+    const leftX = vw * 0.22;
+    const rightX = vw * 0.78;
+    const hitRange = targetW * 0.5 + 34;
+
+    if (Math.abs(victoryX - leftX) <= hitRange) {
+      showMoonComingSoon();
+      return;
+    }
+    if (Math.abs(victoryX - rightX) <= hitRange) {
+      toMenu();
+      return;
+    }
+  }
+
+  function showMoonComingSoon() {
+    state = 'moon';
+    ptr = null;
+    keys.l = keys.r = false;
+    hudEl.classList.add('hidden');
+    hintEl.classList.add('hidden');
+    hide(victoryRoomEl);
+    show(moonSceneEl);
+    buzz(40);
+  }
+
   // ---------- main loop ----------
   let last = performance.now();
   function frame(now) {
@@ -2786,8 +2960,12 @@
     if (state === 'play') {
       stepPlay(dt);
       stepFx(dt);
+    } else if (state === 'victory') {
+      stepVictory(dt);
     } else if (state === 'over') {
       stepFx(dt);
+    } else if (state === 'moon') {
+      // Coming-soon overlay is static.
     } else if (state === 'paused') {
       // frozen
     } else if (state === 'countdown') {
@@ -2847,6 +3025,8 @@
     if (!evosEl.classList.contains('hidden')) { hide(evosEl); show(startEl); return true; }
     if (!howEl.classList.contains('hidden')) { hide(howEl); show(startEl); return true; }
     if (!endlessInfoEl.classList.contains('hidden')) { hide(endlessInfoEl); show(startEl); return true; }
+    if (!moonSceneEl.classList.contains('hidden')) { toMenu(); return true; }
+    if (!victoryRoomEl.classList.contains('hidden')) { toMenu(); return true; }
     return false;
   }
   window.addEventListener('popstate', () => {
