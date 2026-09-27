@@ -4,11 +4,12 @@
 // Bump CACHE_VERSION any time you deploy a new build of index.html so
 // returning players pick up the update instead of being stuck on an
 // old cached copy.
-const CACHE_VERSION = 'beanbound-v1';
+const CACHE_VERSION = 'beanbound-v2';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
+  './offline.html',
   './icon-192.png',
   './icon-512.png',
   './icon-maskable-512.png'
