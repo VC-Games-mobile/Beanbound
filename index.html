@@ -6,6 +6,11 @@
 <meta name="theme-color" content="#12302C">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Beanbound">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Beanbound</title>
 <style>
 @font-face {
@@ -428,6 +433,7 @@
   <div class="mtop">
     <h1>Beanbound</h1>
     <p class="tag">Grow a beanstalk from deep underground all the way to space.</p>
+    <p class="tag" style="opacity:.6;font-size:.8em;margin-top:-8px;">V1.0.2</p>
   </div>
   <div class="mbottom">
     <div class="stack">
@@ -510,7 +516,7 @@
     <h2 id="aboutTitle">About Beanbound</h2>
     <p class="lead">A tiny game about growing a bean all the way to space.</p>
     <div class="settings-list">
-      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.0 — First release</span></div></div>
+      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.2 — Second release</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Developer</b><span>VC Games</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Saved data</b><span>Your progress and settings are stored locally on this device.</span></div></div>
     </div>
@@ -2761,6 +2767,12 @@
 
   requestAnimationFrame(frame);
 })();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
