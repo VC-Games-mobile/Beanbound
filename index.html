@@ -543,7 +543,7 @@
   <div class="mtop">
     <h1>Beanbound</h1>
     <p class="tag">Grow a beanstalk from deep underground all the way to space.</p>
-    <p class="tag menu-version">V1.0.6</p>
+    <p class="tag menu-version">V1.0.7</p>
   </div>
   <div class="mbottom">
     <div class="stack">
@@ -622,6 +622,7 @@
     <div class="stack" style="margin-bottom:14px;">
       <button id="openEvos" class="btn alt">Evolutions</button>
       <button id="updateLogsBtn" class="btn alt">Update Logs</button>
+      <button id="updatesInfoBtn" class="btn alt">How Updates Work</button>
     </div>
     <div class="settings-list">
       <div class="setting-row">
@@ -651,12 +652,32 @@
   </div>
 </div>
 
+<div id="updatesInfo" class="overlay solid hidden" role="dialog" aria-labelledby="updatesInfoTitle">
+  <div class="card">
+    <h2 id="updatesInfoTitle">How Updates Work</h2>
+    <p class="lead">Beanbound updates automatically, so you normally don’t need to manually update the game.</p>
+    <p class="lead">You only need to manually update for big events or special releases.</p>
+    <button id="updatesInfoBack" class="btn">Back</button>
+  </div>
+</div>
+
+<div id="resetConfirm" class="overlay solid hidden" role="dialog" aria-labelledby="resetConfirmTitle" aria-modal="true">
+  <div class="card">
+    <h2 id="resetConfirmTitle">Are you sure?</h2>
+    <p class="lead" id="resetConfirmText">Are you sure you want to reset your Beanbound progress?</p>
+    <div class="stack">
+      <button id="resetConfirmYes" class="btn danger">Yes, continue</button>
+      <button id="resetConfirmNo" class="btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div id="about" class="overlay solid hidden" role="dialog" aria-labelledby="aboutTitle">
   <div class="card">
     <h2 id="aboutTitle">About Beanbound</h2>
     <p class="lead">A tiny game about growing a bean all the way to space.</p>
     <div class="settings-list">
-      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.6 — Latest release</span></div></div>
+      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.7 — Latest release</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Developer</b><span>VC Games</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Saved data</b><span>Your progress and settings are stored locally on this device.</span></div></div>
     </div>
@@ -734,12 +755,13 @@
   const startEl = $('start'), overEl = $('over'), howEl = $('how'), evosEl = $('evos'), pauseEl = $('pause'), countEl = $('count'), settingsEl = $('settings'), endlessInfoEl = $('endlessInfo'), aboutEl = $('about');
   const victoryRoomEl = $('victoryRoom'), moonSceneEl = $('moonScene');
   const whatsNewEl = $('whatsNew');
+  const updatesInfoEl = $('updatesInfo');
   const hapticToggle = $('hapticToggle'), soundToggle = $('soundToggle');
 
   // ---------- version / what's new ----------
   // Change these two values when releasing an update. Keep the changelog text here
   // so it is quick to edit without touching the update-board logic.
-  const CURRENT_VERSION = '1.0.6';
+  const CURRENT_VERSION = '1.0.7';
   const CHANGELOG = [
     'The game is out!',
     'The goal is to reach space, how far can you grow?',
@@ -1750,7 +1772,7 @@
   }
 
   function openSettings() {
-    hide(startEl); hide(howEl); hide(evosEl); hide(aboutEl);
+    hide(startEl); hide(howEl); hide(evosEl); hide(aboutEl); hide(updatesInfoEl);
     show(settingsEl);
     updateSettingsUI();
   }
@@ -1758,6 +1780,7 @@
   function closeSettings() {
     hide(settingsEl);
     hide(aboutEl);
+    hide(updatesInfoEl);
     show(startEl);
   }
 
@@ -1781,13 +1804,43 @@
     updateSettingsUI();
   }
 
-  function resetProgress() {
-    if (!confirm('Reset your Beanbound progress and best score?')) return;
+  let resetConfirmStep = 0;
+
+  function showResetConfirm(step) {
+    resetConfirmStep = step;
+    const titles = ['Are you sure?', 'Are you REALLY sure?', 'FINAL CONFIRMATION'];
+    const messages = [
+      'Are you sure you want to reset your Beanbound progress?',
+      'This will erase your best score and progress.',
+      'This will permanently reset all Beanbound progress. This cannot be undone.'
+    ];
+    $('resetConfirmTitle').textContent = titles[step];
+    $('resetConfirmText').textContent = messages[step];
+    $('resetConfirmYes').textContent = step === 2 ? 'Reset Progress' : 'Yes, continue';
+    hide(settingsEl);
+    show($('resetConfirm'));
+  }
+
+  function cancelResetConfirm() {
+    resetConfirmStep = 0;
+    hide($('resetConfirm'));
+    show(settingsEl);
+    updateSettingsUI();
+  }
+
+  function confirmResetProgress() {
+    if (resetConfirmStep < 2) {
+      showResetConfirm(resetConfirmStep + 1);
+      return;
+    }
     best = 0; maxM = 0;
     saveProgress();
     updateBestStart();
     buildEvos();
     updateSettingsUI();
+    hide($('resetConfirm'));
+    show(settingsEl);
+    resetConfirmStep = 0;
   }
 
   function resetSettings() {
@@ -1811,7 +1864,7 @@
     musicLevel = MUSIC_GAME;
     applyMusicVolume(0.8);
     reset();
-    hide(startEl); hide(overEl); hide(pauseEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
+    hide(startEl); hide(overEl); hide(pauseEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(updatesInfoEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
     hudEl.classList.add('hidden');
     state = 'intro';
     requestWakeLock();
@@ -2137,7 +2190,9 @@
   soundToggle.addEventListener('click', toggleSound);
   hintsToggle.addEventListener('click', toggleGameplayHints);
   autoPauseToggle.addEventListener('click', toggleAutoPause);
-  $('resetProgress').addEventListener('click', resetProgress);
+  $('resetProgress').addEventListener('click', () => showResetConfirm(0));
+  $('resetConfirmYes').addEventListener('click', confirmResetProgress);
+  $('resetConfirmNo').addEventListener('click', cancelResetConfirm);
 
   $('whatsNewDismiss').addEventListener('click', dismissWhatsNew);
   $('updateLogsBtn').addEventListener('click', () => {
@@ -2145,6 +2200,17 @@
     sfx.pop();
     hide(settingsEl);
     openWhatsNew('settings');
+  });
+  $('updatesInfoBtn').addEventListener('click', () => {
+    initAudio();
+    sfx.pop();
+    hide(settingsEl);
+    show(updatesInfoEl);
+  });
+  $('updatesInfoBack').addEventListener('click', () => {
+    hide(updatesInfoEl);
+    show(settingsEl);
+    updateSettingsUI();
   });
   $('play').addEventListener('click', () => startGame());
   $('shareScore').addEventListener('click', async () => {
@@ -3163,6 +3229,7 @@
   function pushBackGuard() { try { history.pushState({ bbGuard: true }, ''); } catch (e) {} }
   function closeTopOverlay() {
     if (!whatsNewEl.classList.contains('hidden')) return true;
+    if (!updatesInfoEl.classList.contains('hidden')) { hide(updatesInfoEl); show(settingsEl); updateSettingsUI(); return true; }
     if (!settingsEl.classList.contains('hidden')) {
       if (!aboutEl.classList.contains('hidden')) { hide(aboutEl); show(settingsEl); updateSettingsUI(); }
       else closeSettings();
