@@ -1,6 +1,6 @@
 from pathlib import Path
 p=Path(__file__).resolve().parent
-files=['App.swift','Resources/index.html','Assets.xcassets']
+files=['App.swift','Resources/index.html','Resources/credits.html','Resources/Licenses/BagelFatOne-OFL.txt','Resources/Licenses/Figtree-OFL.txt','PrivacyInfo.xcprivacy','LaunchScreen.storyboard','Assets.xcassets']
 obj={};idx=1
 def add(s):
  global idx
@@ -22,7 +22,7 @@ def configs(settings):
   cs.append(add('{isa = XCBuildConfiguration; name = '+name+'; buildSettings = {'+settings+('SWIFT_OPTIMIZATION_LEVEL = "-Onone";' if name=='Debug' else 'SWIFT_OPTIMIZATION_LEVEL = "-O";')+'}; }'))
  return add('{isa = XCConfigurationList; buildConfigurations = ('+','.join(cs)+'); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; }')
 pc=configs('SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; CLANG_ENABLE_MODULES = YES; ENABLE_TESTABILITY = YES;')
-tc=configs('PRODUCT_BUNDLE_IDENTIFIER = com.vcgames.beanbound; PRODUCT_NAME = Beanbound; TARGETED_DEVICE_FAMILY = "1,2"; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = Beanbound; INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES; INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"; "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"; SUPPORTS_MACCATALYST = NO; CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 1.0.7; ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = P4ZB4J2Z8M; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";')
+tc=configs('PRODUCT_BUNDLE_IDENTIFIER = com.vcgames.beanbound; PRODUCT_NAME = Beanbound; TARGETED_DEVICE_FAMILY = "1,2"; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = Beanbound; INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen; INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO; INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES; INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"; "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"; SUPPORTS_MACCATALYST = NO; CURRENT_PROJECT_VERSION = 2; MARKETING_VERSION = 1.0.8; ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = P4ZB4J2Z8M; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";')
 target=add('{isa = PBXNativeTarget; name = Beanbound; productName = Beanbound; productType = "com.apple.product-type.application"; productReference = '+product+'; buildConfigurationList = '+tc+'; buildPhases = ('+src+','+fw+','+res+'); buildRules = (); dependencies = (); }')
 testRef=add('{isa = PBXFileReference; path = Tests/GameTests.swift; sourceTree = "<group>"; }')
 testBuild=add('{isa = PBXBuildFile; fileRef = '+testRef+'; }')

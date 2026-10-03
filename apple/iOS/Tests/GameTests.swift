@@ -19,6 +19,9 @@ final class GameTests: XCTestCase {
         let game = app.window!.rootViewController as! GameViewController
         try await ready(game)
         try await Task.sleep(nanoseconds: 3_000_000_000)
+        // Upgrades present the original changelog before starting menu music.
+        _ = try await evaluate("if (!document.getElementById('whatsNew').classList.contains('hidden')) document.getElementById('whatsNewDismiss').click()", in: game)
+        try await Task.sleep(nanoseconds: 300_000_000)
         let fonts = try await evaluate("document.fonts.check('20px Bagel Fat One') && document.fonts.check('20px Figtree')", in: game) as? Bool
         XCTAssertEqual(fonts, true)
         let touchLayout = try await evaluate("!document.body.classList.contains('tv') && getComputedStyle(document.body).touchAction !== 'none'", in: game) as? Bool

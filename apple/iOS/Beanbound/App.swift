@@ -22,7 +22,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
-final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavigationDelegate {
+final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     private(set) var webView: WKWebView!
     private let saveKey = "Beanbound.webSave"
     override var prefersStatusBarHidden: Bool { true }
@@ -68,6 +68,7 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         configuration.mediaTypesRequiringUserActionForPlayback = []
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = self
+        webView.uiDelegate = self
         webView.isOpaque = false
         webView.backgroundColor = view.backgroundColor
         webView.scrollView.backgroundColor = view.backgroundColor
@@ -84,6 +85,14 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
         NotificationCenter.default.addObserver(self, selector: #selector(background), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(foreground), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(audioInterrupted(_:)), name: AVAudioSession.interruptionNotification, object: nil)
+    }
+    deinit { NotificationCenter.default.removeObserver(self) }
+    @objc private func audioInterrupted(_ notification: Notification) {
+        guard let value = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: value) else { return }
+        if type == .began { background() }
+        else if UIApplication.shared.applicationState == .active { foreground() }
     }
     @objc private func background() {
         UIApplication.shared.isIdleTimerDisabled = false
@@ -96,6 +105,13 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         UIApplication.shared.isIdleTimerDisabled = true
+    }
+    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        guard presentedViewController == nil else { completionHandler(false); return }
+        let alert = UIAlertController(title: "Beanbound", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in completionHandler(false) })
+        alert.addAction(UIAlertAction(title: "Reset settings", style: .destructive) { _ in completionHandler(true) })
+        present(alert, animated: true)
     }
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         // Game resources stay offline; external links open in the system browser.

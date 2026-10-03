@@ -7,11 +7,11 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Beanbound TV">
+<meta name="apple-mobile-web-app-title" content="Beanbound">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Beanbound TV</title>
+<title>Beanbound</title>
 <style>
 @font-face {
   font-family: 'Figtree';
@@ -605,12 +605,12 @@
   <div class="mtop">
     <h1>Beanbound</h1>
     <p class="tag">Grow a beanstalk from deep underground all the way to space.</p>
-    <p class="tag menu-version">V1.0.7</p>
+    <p class="tag menu-version">V1.0.8</p>
   </div>
   <div class="mbottom">
     <div class="stack">
       <button id="play" class="btn">Play</button>
-      <button id="endless" class="btn alt">Endless Mode</button>
+      <button id="endless" class="btn alt" hidden style="display:none">Endless Mode</button>
       <button id="menuHow" class="btn alt">How to Play</button>
       <button id="settingsBtn" class="btn alt">Settings &amp; More</button>
     </div>
@@ -721,7 +721,7 @@
 <div id="updatesInfo" class="overlay solid hidden" role="dialog" aria-labelledby="updatesInfoTitle">
   <div class="card">
     <h2 id="updatesInfoTitle">How Updates Work</h2>
-    <p class="lead">Install new versions of Beanbound through the App Store, TestFlight, or Xcode, depending on how you installed this app.</p>
+    <p class="lead">New versions of Beanbound are available through the App Store.</p>
     <p class="lead">Your progress and settings stay saved on this device when the app is updated.</p>
     <button id="updatesInfoBack" class="btn">Back</button>
   </div>
@@ -743,11 +743,11 @@
     <h2 id="aboutTitle">About Beanbound</h2>
     <p class="lead">A tiny game about growing a bean all the way to space.</p>
     <div class="settings-list">
-      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.7 — Latest release</span></div></div>
+      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.8 — Latest release</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Developer</b><span>VC Games</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Saved data</b><span>Your progress and settings are stored locally on this device.</span></div></div>
     </div>
-    <button id="aboutBack" class="btn">Back</button>
+    <a class="btn alt" style="display:block;text-decoration:none" href="https://vc-games-mobile.github.io/Beanboundaguin/privacy.html">Privacy policy</a><a class="btn alt" style="display:block;text-decoration:none" href="https://vc-games-mobile.github.io/Beanboundaguin/support.html">Help &amp; support</a><a class="btn alt" style="display:block;text-decoration:none" href="credits.html">Credits &amp; font licenses</a><button id="aboutBack" class="btn">Back</button>
   </div>
 </div>
 
@@ -797,8 +797,8 @@
 
 <div id="moonScene" class="overlay solid victory-overlay hidden" role="dialog" aria-labelledby="moonTitle">
   <div class="card victory-card moon-card">
-    <h2 id="moonTitle">MOON COMING SOON!</h2>
-    <p class="best">The Moon isn't ready yet.</p>
+    <h2 id="moonTitle">You reached space!</h2>
+    <p class="best">Your climb is complete. Try again to improve your best score.</p>
     <div class="stack">
       <button id="moonPlayAgain" class="btn">Go back</button>
     </div>
@@ -827,7 +827,7 @@
   // ---------- version / what's new ----------
   // Change these two values when releasing an update. Keep the changelog text here
   // so it is quick to edit without touching the update-board logic.
-  const CURRENT_VERSION = '1.0.7';
+  const CURRENT_VERSION = '1.0.8';
   const CHANGELOG = [
     'The game is out!',
     'The goal is to reach space, how far can you grow?',
@@ -3117,9 +3117,9 @@
       ctx.strokeStyle = '#12302C'; ctx.lineWidth = 5; ctx.strokeRect(18, 18, vw - 36, vh - 36);
 
       ctx.textAlign = 'center';
-      ctx.font = "42px 'Bagel Fat One', 'Trebuchet MS', sans-serif";
-      ctx.lineWidth = 8; ctx.strokeStyle = INK; ctx.strokeText('Congratulations, you made it!', vw / 2, vh * .16);
-      ctx.fillStyle = '#FFD86B'; ctx.fillText('Congratulations, you made it!', vw / 2, vh * .16);
+      ctx.font = `${Math.min(42, vw / 13)}px 'Bagel Fat One', 'Trebuchet MS', sans-serif`;
+      ctx.lineWidth = 8; ctx.strokeStyle = INK; ctx.strokeText('You reached space!', vw / 2, vh * .16);
+      ctx.fillStyle = '#FFD86B'; ctx.fillText('You reached space!', vw / 2, vh * .16);
       ctx.font = "24px 'Bagel Fat One', 'Trebuchet MS', sans-serif";
       ctx.fillStyle = '#FFFFFF'; ctx.lineWidth = 5; ctx.strokeStyle = INK;
       ctx.strokeText('Steer into a choice', vw / 2, vh * .23);
@@ -3138,7 +3138,7 @@
         ctx.font = "18px 'Trebuchet MS', sans-serif";
         ctx.strokeText(sub, cx, y + 26); ctx.fillText(sub, cx, y + 26);
       }
-      sign(leftX, '#566B9C', 'GO TO THE', 'MOON');
+      sign(leftX, '#566B9C', 'PLAY AGAIN', 'NEW CLIMB');
       sign(rightX, '#FFD86B', 'GO BACK', 'MAIN MENU');
 
       ctx.fillStyle = 'rgba(18,48,44,.22)'; ctx.beginPath(); ctx.ellipse(victoryX, vh * .72, 42, 10, 0, 0, Math.PI * 2); ctx.fill();
@@ -3221,7 +3221,7 @@
     const hitRange = targetW * 0.5 + 34;
 
     if (Math.abs(victoryX - leftX) <= hitRange) {
-      showMoonComingSoon();
+      startGame();
       return;
     }
     if (Math.abs(victoryX - rightX) <= hitRange) {
