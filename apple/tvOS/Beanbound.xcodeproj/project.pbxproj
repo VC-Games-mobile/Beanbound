@@ -1,0 +1,40 @@
+// !$*UTF8*$!
+{archiveVersion = 1; classes = {}; objectVersion = 56; objects = {
+000000000000000000000001 = {isa = PBXFileReference; path = "App.swift"; sourceTree = "<group>"; };
+000000000000000000000002 = {isa = PBXBuildFile; fileRef = 000000000000000000000001; };
+000000000000000000000003 = {isa = PBXFileReference; path = "CanvasView.swift"; sourceTree = "<group>"; };
+000000000000000000000004 = {isa = PBXBuildFile; fileRef = 000000000000000000000003; };
+000000000000000000000005 = {isa = PBXFileReference; path = "Audio.swift"; sourceTree = "<group>"; };
+000000000000000000000006 = {isa = PBXBuildFile; fileRef = 000000000000000000000005; };
+000000000000000000000007 = {isa = PBXFileReference; path = "Fonts.swift"; sourceTree = "<group>"; };
+000000000000000000000008 = {isa = PBXBuildFile; fileRef = 000000000000000000000007; };
+000000000000000000000009 = {isa = PBXFileReference; path = "Resources/game.js"; sourceTree = "<group>"; };
+00000000000000000000000A = {isa = PBXBuildFile; fileRef = 000000000000000000000009; };
+00000000000000000000000B = {isa = PBXFileReference; path = "Resources/host.js"; sourceTree = "<group>"; };
+00000000000000000000000C = {isa = PBXBuildFile; fileRef = 00000000000000000000000B; };
+00000000000000000000000D = {isa = PBXFileReference; path = "Resources/dom.json"; sourceTree = "<group>"; };
+00000000000000000000000E = {isa = PBXBuildFile; fileRef = 00000000000000000000000D; };
+00000000000000000000000F = {isa = PBXFileReference; path = "Resources/BagelFatOne-400.ttf"; sourceTree = "<group>"; };
+000000000000000000000010 = {isa = PBXBuildFile; fileRef = 00000000000000000000000F; };
+000000000000000000000011 = {isa = PBXFileReference; path = "Resources/Figtree-500.ttf"; sourceTree = "<group>"; };
+000000000000000000000012 = {isa = PBXBuildFile; fileRef = 000000000000000000000011; };
+000000000000000000000013 = {isa = PBXFileReference; path = "Resources/Figtree-700.ttf"; sourceTree = "<group>"; };
+000000000000000000000014 = {isa = PBXBuildFile; fileRef = 000000000000000000000013; };
+000000000000000000000015 = {isa = PBXFileReference; path = "Assets.xcassets"; sourceTree = "<group>"; };
+000000000000000000000016 = {isa = PBXBuildFile; fileRef = 000000000000000000000015; };
+000000000000000000000017 = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Beanbound.app; sourceTree = BUILT_PRODUCTS_DIR; };
+000000000000000000000018 = {isa = PBXGroup; path = Beanbound; sourceTree = "<group>"; children = (000000000000000000000001,000000000000000000000003,000000000000000000000005,000000000000000000000007,000000000000000000000009,00000000000000000000000B,00000000000000000000000D,00000000000000000000000F,000000000000000000000011,000000000000000000000013,000000000000000000000015); };
+000000000000000000000019 = {isa = PBXGroup; name = Products; sourceTree = "<group>"; children = (000000000000000000000017); };
+00000000000000000000001A = {isa = PBXGroup; sourceTree = "<group>"; children = (000000000000000000000018,000000000000000000000019); };
+00000000000000000000001B = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (000000000000000000000002,000000000000000000000004,000000000000000000000006,000000000000000000000008); runOnlyForDeploymentPostprocessing = 0; };
+00000000000000000000001C = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (00000000000000000000000A,00000000000000000000000C,00000000000000000000000E,000000000000000000000010,000000000000000000000012,000000000000000000000014,000000000000000000000016); runOnlyForDeploymentPostprocessing = 0; };
+00000000000000000000001D = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+00000000000000000000001E = {isa = XCBuildConfiguration; name = Debug; buildSettings = {SDKROOT = appletvos; TVOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; CLANG_ENABLE_MODULES = YES;SWIFT_OPTIMIZATION_LEVEL = "-Onone";}; };
+00000000000000000000001F = {isa = XCBuildConfiguration; name = Release; buildSettings = {SDKROOT = appletvos; TVOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; CLANG_ENABLE_MODULES = YES;SWIFT_OPTIMIZATION_LEVEL = "-O";}; };
+000000000000000000000020 = {isa = XCConfigurationList; buildConfigurations = (00000000000000000000001E,00000000000000000000001F); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+000000000000000000000021 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {PRODUCT_BUNDLE_IDENTIFIER = com.vcgames.beanbound.tv; PRODUCT_NAME = Beanbound; TARGETED_DEVICE_FAMILY = 3; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = Beanbound; INFOPLIST_KEY_UILaunchScreen_Generation = YES; CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 1.0.7; ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = P4ZB4J2Z8M; SUPPORTED_PLATFORMS = "appletvos appletvsimulator";SWIFT_OPTIMIZATION_LEVEL = "-Onone";}; };
+000000000000000000000022 = {isa = XCBuildConfiguration; name = Release; buildSettings = {PRODUCT_BUNDLE_IDENTIFIER = com.vcgames.beanbound.tv; PRODUCT_NAME = Beanbound; TARGETED_DEVICE_FAMILY = 3; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = Beanbound; INFOPLIST_KEY_UILaunchScreen_Generation = YES; CURRENT_PROJECT_VERSION = 3; MARKETING_VERSION = 1.0.7; ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = P4ZB4J2Z8M; SUPPORTED_PLATFORMS = "appletvos appletvsimulator";SWIFT_OPTIMIZATION_LEVEL = "-O";}; };
+000000000000000000000023 = {isa = XCConfigurationList; buildConfigurations = (000000000000000000000021,000000000000000000000022); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+000000000000000000000024 = {isa = PBXNativeTarget; name = Beanbound; productName = Beanbound; productType = "com.apple.product-type.application"; productReference = 000000000000000000000017; buildConfigurationList = 000000000000000000000023; buildPhases = (00000000000000000000001B,00000000000000000000001D,00000000000000000000001C); buildRules = (); dependencies = (); };
+000000000000000000000025 = {isa = PBXProject; buildConfigurationList = 000000000000000000000020; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; knownRegions = (en,Base); mainGroup = 00000000000000000000001A; productRefGroup = 000000000000000000000019; projectDirPath = ""; projectRoot = ""; targets = (000000000000000000000024); };
+}; rootObject = 000000000000000000000025; }
