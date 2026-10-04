@@ -1,0 +1,21 @@
+Beanbound 1.0.8 (build 3) — additional review information
+
+1. Physical-device demonstration and testing
+The supplied recording demonstrates version 1.0.8 build 3 on a physical iPhone 14 running iOS 26.6.1. It begins on the Home Screen, shows launching Beanbound, touch gameplay, collecting items, evolution changes, game over, replay, instructions and settings. Build 3 updates the app icon; the bundled game HTML is unchanged from build 2. The recording uses a development-signed export of the release archive, without rebuilding the app code. It is not a TestFlight installation.
+
+The same build was installed on a physical iPad mini (6th generation), running iPadOS 26.6.1. The tester checked gameplay, steering, menus, sound, pause/resume and portrait/landscape layout and reported that it worked well.
+
+2. Purpose and target audience
+Beanbound is a free, offline casual arcade game for iPhone and iPad. Players steer a growing beanstalk from underground toward space, collect rain and seeds, avoid hazards, discover evolutions, and try to improve their best score. It provides short recreational play sessions with simple touch controls, original game artwork and music. It is intended for general casual-game players and is not specifically marketed as a Kids Category app.
+
+3. Setup and main-feature access
+No account, registration, login, credentials, sample files, subscription, or purchase is required. Launch the app. If the version information dialog appears, dismiss it. Tap Play, then drag left or right to steer the beanstalk. Collect rain and seeds and avoid hazards. Tap Pause to pause the run and use the displayed controls to resume or return to the menu. Settings provides sound and haptics preferences and instructions. High scores, unlocked evolutions, and preferences are stored locally. The score sharing feature opens the native iOS share sheet; the player chooses whether and where to share. Core gameplay works without an internet connection. There is no user-generated-content hosting or communication between players.
+
+4. External services, tools, and platforms
+Core gameplay uses no external server, API, data provider, authentication provider, payment processor, advertising service, analytics SDK, or AI service. The game code, artwork, fonts, and procedural music are bundled in the app and run locally in WKWebView using Apple's WebKit and Web Audio support. Native iOS APIs provide local UserDefaults persistence, haptics, audio-session/lifecycle handling, and optional system sharing. Optional Privacy and Support links open public GitHub Pages pages in the external browser; support links to GitHub Issues. These pages are not required to play. The app does not remotely load its game content.
+
+5. Regional behavior
+The app's features and game content are the same across all regions where it is available. The initial release is in English. Storefront age ratings and availability may vary under Apple's regional requirements, but there are no region-specific game features or paid content.
+
+6. Regulatory and content authorization
+Beanbound is an entertainment game and does not provide services in a highly regulated industry. The publisher has permission to distribute the game's code, artwork, and music. The bundled Bagel Fat One and Figtree fonts are distributed under the SIL Open Font License; their license texts are included in the app's Credits and the bundled Licenses directory. No licensed movies, commercial music recordings, or branded third-party characters are used.

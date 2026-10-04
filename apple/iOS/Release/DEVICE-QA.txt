@@ -1,0 +1,20 @@
+Physical-device QA preparation — October 4, 2026
+
+Exported /tmp/Beanbound-1.0.8.xcarchive using Xcode debugging/development signing, without rebuilding the source. Version 1.0.8, build 2. Export succeeded.
+All bundled HTML, font and license files match the submitted archive byte-for-byte. PrivacyInfo.xcprivacy also matches. The executable signature differs due to development re-signing.
+Installed and launched successfully on Luke's iPhone 14, iOS 26.6.1.
+No physical iPad was detected by devicectl or xctrace. iPad installation is pending device connection/trust.
+Gameplay, audio, haptics, orientation, background behavior, persistence and screen recording remain to be verified physically. Installation and process launch alone are not a completed gameplay QA pass.
+
+Recording walkthrough:
+1. Begin recording on the Home Screen, then tap Beanbound to launch.
+2. Dismiss version information if displayed; show the main menu.
+3. Tap Play and steer left/right, collect items, and show gameplay.
+4. Pause and resume; return to menu.
+5. Show instructions, settings, scores and evolutions.
+6. Check music/sound, rotate the device, and background/return to confirm pause.
+7. Stop recording; transfer the video to this Mac for review attachment.
+
+October 4 follow-up: build 3 with the supplied new icon was archived, uploaded to Apple, exported with development signing and installed on the physical iPhone. Game HTML matches build 2. New 72.68-second recording begins on Home Screen and shows launch, gameplay, game over/replay, instructions and settings. Prepared a 69-second MP4 review copy, omitting the final Control Center stop-recording screen. Physical iPad check remains pending.
+
+October 4, 9:33 AM: iPad mini (6th generation), iPadOS 26.6.1, paired and Developer Mode enabled. Registered device through Xcode automatic provisioning; re-exported the build 3 release archive with the updated development profile. Installation succeeded. Interactive physical iPad gameplay QA remains pending.
