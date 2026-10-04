@@ -12,7 +12,7 @@ Open `Beanbound.xcodeproj` in Xcode, choose the Beanbound scheme, connect and un
 
 From the workspace root, run `python3 iOS/prepare.py` after changing the original `index.html`. It bundles the game and adds the iOS lifecycle boundary, turns off the Apple TV layout, restores touch menu scrolling, and adapts update instructions. It does not modify the Apple TV source or build. Generated resources are included so Xcode builds without Python.
 
-`python3 iOS/make_project.py` regenerates the project and shared scheme. `swift iOS/make_icon.swift` generates the square iPhone/iPad icon using the same sprout and Bagel Fat One title as the TV artwork.
+`python3 iOS/make_project.py` regenerates the project and shared scheme. `swift iOS/make_icon.swift` generates the required opaque 1024×1024 iPhone/iPad icon from the supplied artwork in `iOS/IconSource/Beanbound.png`. The source is preserved without creative alterations.
 
 ## Validation
 
