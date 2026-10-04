@@ -2,8 +2,8 @@
 
 Submitted October 3, 2026 at 1:58 PM America/Detroit.
 
-- Status: Waiting for Review (verified in App Store Connect).
-- iPhone and iPad version 1.0.8, build 2.
+- Status: Waiting for Review for build 3, confirmed in the owner-provided App Store Connect screenshot on October 4, 2026 after resubmission.
+- iPhone and iPad version 1.0.8, build 3. Build 3 includes the supplied new sprout icon.
 - Apple app ID: 6818844668. Bundle ID: com.vcgames.beanbound.
 - Submission ID: 4afc2d8c-b2ca-464e-bbfd-7937c7381634.
 - Free, no ads or in-app purchases. Automatic release after approval.
@@ -20,3 +20,5 @@ Support: https://vc-games-mobile.github.io/Beanboundaguin/support.html
 Review: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/4afc2d8c-b2ca-464e-bbfd-7937c7381634
 
 Apple will email the account owner when review completes. Approval and public availability are not yet confirmed. The tvOS app is not part of this initial App Store submission.
+
+October 4: Apple requested additional information under Guideline 2.1. Prepared the six-part response and physical iPhone recording. Installed archive exports with development signing on iPhone 14 and iPad mini (6th generation), both on OS 26.6.1. Owner confirmed iPad checks worked. Owner completed App Store Connect resubmission manually after browser-tool policy verification blocked automation. Screenshot confirms 1.0.8 (3), new icon, Waiting for Review.
