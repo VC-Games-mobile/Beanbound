@@ -28,3 +28,5 @@ October 17: Owner reports version 1.0.8 is approved and available on the App Sto
 October 17 at 1:48 PM America/Detroit: version 1.0.9 (4) App Store Connect upload succeeded. Listing configuration and review submission remain pending; Apple login form does not load in Chrome.
 
 October 17: corrected version 1.0.9 (5) uploaded successfully to App Store Connect. Use build 5 instead of build 4; automatic-update claim is removed. Not submitted for review.
+
+October 17: App Store Connect sign-in resumed. Created the 1.0.9 draft and saved the exact owner-provided description, prepared release notes, and corrected support URL. Build selection and review submission remain pending. Apple also displays an updated Developer Program License Agreement requiring Account Holder acceptance before updates can be submitted; not accepted by the agent.
