@@ -1,7 +1,7 @@
-Beanbound 1.0.9 (4) updates the developer branding to LokeWorks, replaces the startup logo/background, simplifies Settings, and corrects privacy/support URLs after a repository rename. The gameplay, bundled music, offline behavior, native persistence, haptics, and sharing remain the same as the approved 1.0.8 (3) release.
+Beanbound 1.0.9 (5) updates the developer branding to LokeWorks, replaces the startup logo/background, simplifies Settings, removes the inaccurate automatic-update claim from Update Logs, and corrects privacy/support URLs after a repository rename. The gameplay, bundled music, offline behavior, native persistence, haptics, and sharing remain the same as the approved 1.0.8 (3) release.
 
 No login, accounts, ads, in-app purchases, user-generated content, analytics, or external services are required. Tap Play and drag left/right to steer. Catch water and avoid hazards. Pause opens the pause menu; Settings controls sound and haptics. Progress is stored locally. Features are consistent across regions; the game is in English.
 
 The game, artwork, fonts, and music are bundled locally. The developer has permission to distribute the game assets; included font licenses remain available in Credits.
 
-Validation: iPhone and iPad simulator integration tests passed for fonts, layout, audio, steering, pause/lifecycle, and saved settings. The signed archive was exported for development, installed, and launched on a physical iPhone 14. This update was not installed on the physical iPad at the owner's request.
+Validation: iPhone and iPad simulator integration tests passed for fonts, layout, audio, steering, pause/lifecycle, and saved settings. The preceding build 4 was exported for development, installed, and launched on a physical iPhone 14; build 5 only removes a text line from Update Logs. This update was not installed on the physical iPad at the owner's request.

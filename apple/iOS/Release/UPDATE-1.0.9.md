@@ -11,3 +11,5 @@ Validation: iPhone 17 Pro and iPad Pro 13-inch simulator integration tests passe
 October 17 follow-up: installed and launched 1.0.9 (4) on Luke’s iPhone 14. iPad installation remains blocked because the device is locked.
 
 App Store preparation: release notes and review notes are saved in WHATS-NEW-1.0.9.txt and REVIEW-NOTES-1.0.9.txt. App Store Connect login iframe stalls in Chrome, including after refresh and main-page navigation. Listing creation, build attachment, and support/privacy metadata correction remain pending sign-in.
+
+Owner requested removal of the automatic-update claim in Update Logs. Removed the line from shared source and regenerated both app resources. iOS 1.0.9 build 5 supersedes uploaded build 4; all gameplay code is unchanged. Build 5 archive/upload pending.

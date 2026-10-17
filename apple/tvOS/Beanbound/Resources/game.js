@@ -20,8 +20,7 @@
   const CURRENT_VERSION = '1.0.8';
   const CHANGELOG = [
     'The game is out!',
-    'The goal is to reach space, how far can you grow?',
-    'Auto updates, you only need to manually update for events!'
+    'The goal is to reach space, how far can you grow?'
   ];
   const SAVED_VERSION_KEY = 'beanbound2-version';
   const SAVED_CHANGELOG_KEY = 'beanbound2-changelog';
