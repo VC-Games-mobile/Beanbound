@@ -22,3 +22,5 @@ Review: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsub
 Apple will email the account owner when review completes. Approval and public availability are not yet confirmed. The tvOS app is not part of this initial App Store submission.
 
 October 4: Apple requested additional information under Guideline 2.1. Prepared the six-part response and physical iPhone recording. Installed archive exports with development signing on iPhone 14 and iPad mini (6th generation), both on OS 26.6.1. Owner confirmed iPad checks worked. Owner completed App Store Connect resubmission manually after browser-tool policy verification blocked automation. Screenshot confirms 1.0.8 (3), new icon, Waiting for Review.
+
+October 17: Owner reports version 1.0.8 is approved and available on the App Store. Prepared 1.0.9 (4) from the tested signed archive, with release notes and updated review notes. App Store Connect upload started; completion and version-draft configuration pending. No iPad installation is requested for this update.
