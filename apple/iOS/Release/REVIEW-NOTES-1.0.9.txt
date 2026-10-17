@@ -4,4 +4,4 @@ No login, accounts, ads, in-app purchases, user-generated content, analytics, or
 
 The game, artwork, fonts, and music are bundled locally. The developer has permission to distribute the game assets; included font licenses remain available in Credits.
 
-Validation: iPhone and iPad simulator integration tests passed for fonts, layout, audio, steering, pause/lifecycle, and saved settings. The preceding build 4 was exported for development, installed, and launched on a physical iPhone 14; build 5 only removes a text line from Update Logs. This update was not installed on the physical iPad at the owner's request.
+Validation: iPhone and iPad simulator integration tests passed for fonts, layout, audio, steering, pause/lifecycle, and saved settings. Build 5 was exported from the release archive with development signing, installed, and launched on a physical iPhone 14. This update was not installed on the physical iPad; its gameplay is unchanged from the approved release.

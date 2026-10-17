@@ -17,3 +17,5 @@ Owner requested removal of the automatic-update claim in Update Logs. Removed th
 October 17: corrected version 1.0.9 (5) uploaded successfully to App Store Connect. Use build 5 instead of build 4; automatic-update claim is removed. Not submitted for review.
 
 October 17 at 1:52 PM America/Detroit: exported corrected build 5 with development signing, installed and launched on Luke’s iPhone 14. The iPhone now has 1.0.9 (5). No iPad installation performed.
+
+October 17 at 1:58 PM America/Detroit: build 5 submitted and confirmed Waiting for Review (aaa47c04-f5c1-4837-b37d-2df0aed943b2). Automatic release after approval.

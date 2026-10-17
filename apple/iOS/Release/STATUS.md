@@ -32,3 +32,6 @@ October 17: corrected version 1.0.9 (5) uploaded successfully to App Store Conne
 October 17: App Store Connect sign-in resumed. Created the 1.0.9 draft and saved the exact owner-provided description, prepared release notes, and corrected support URL. Build selection and review submission remain pending. Apple also displays an updated Developer Program License Agreement requiring Account Holder acceptance before updates can be submitted; not accepted by the agent.
 
 October 17: saved App Store subtitle "How far can you grow?" in App Information for the next release.
+
+October 17 at 1:58 PM America/Detroit: submitted iOS 1.0.9 (5). App Store Connect confirmed Waiting for Review. Submission ID: aaa47c04-f5c1-4837-b37d-2df0aed943b2. Automatic release after approval, immediately to all users; existing rating preserved. Exact owner description and subtitle included. Corrected Support and Privacy Policy URLs to /Beanbound/. Review notes updated for build 5. No new agreement acceptance was required or performed in the submission flow.
+Review URL: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/aaa47c04-f5c1-4837-b37d-2df0aed943b2
