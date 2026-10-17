@@ -13,3 +13,5 @@ October 17 follow-up: installed and launched 1.0.9 (4) on Luke’s iPhone 14. iP
 App Store preparation: release notes and review notes are saved in WHATS-NEW-1.0.9.txt and REVIEW-NOTES-1.0.9.txt. App Store Connect login iframe stalls in Chrome, including after refresh and main-page navigation. Listing creation, build attachment, and support/privacy metadata correction remain pending sign-in.
 
 Owner requested removal of the automatic-update claim in Update Logs. Removed the line from shared source and regenerated both app resources. iOS 1.0.9 build 5 supersedes uploaded build 4; all gameplay code is unchanged. Build 5 archive/upload pending.
+
+October 17: corrected version 1.0.9 (5) uploaded successfully to App Store Connect. Use build 5 instead of build 4; automatic-update claim is removed. Not submitted for review.
