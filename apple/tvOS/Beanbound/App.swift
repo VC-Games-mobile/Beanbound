@@ -113,7 +113,7 @@ final class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         // Dictionary descriptions have unstable key ordering. Compare explicit fields.
         let sig="\(overlay)|\(splash)|\(state == "countdown" ? snap["countdown"] ?? "" : "")|" + buttons.map{($0["id"] ?? "")+":"+($0["title"] ?? "")}.joined(separator:"|") + "|" + (menu["text"] as? String ?? "")
         if sig==signature {return};signature=sig
-        titleLabel.text=splash ? "VC Games" : state=="countdown" ? "\(snap["countdown"] ?? "")" : menu["title"] as? String
+        titleLabel.text=splash ? "LokeWorks" : state=="countdown" ? "\(snap["countdown"] ?? "")" : menu["title"] as? String
         if let title=titleLabel.text {titleLabel.attributedText=NSAttributedString(string:title,attributes:[.font:titleLabel.font!, .foregroundColor:CanvasView.color("#FFD86B"), .strokeColor:CanvasView.color("#12302C"), .strokeWidth:-5])}
         textLabel.text=menuText(menu,snap:snap)
         let oldButtons=buttonStack.arrangedSubviews.compactMap{$0 as? UIButton}
@@ -141,12 +141,11 @@ final class GameViewController: UIViewController, UIGestureRecognizerDelegate {
         case "start": return "Grow a beanstalk from deep underground all the way to space.\nBest: \(snap["best"] ?? 0)\nUse the remote’s touch surface or click left and right to steer."
         case "over": return ["finalScore","statLine","evoLine","bestLine"].compactMap{js.objectForKeyedSubscript("nodes")?.forProperty($0)?.forProperty("textContent")?.toString()}.filter{!$0.isEmpty}.joined(separator:"\n")
         case "pause": return js.objectForKeyedSubscript("nodes")?.forProperty("pauseInfo")?.forProperty("textContent")?.toString() ?? ""
-        case "about": return "Beanbound 1.0.7 • VC Games\nA tiny game about growing a bean all the way to space.\nProgress and settings are stored on this Apple TV."
+        case "about": return "Beanbound 1.0.8 • LokeWorks\nA tiny game about growing a bean all the way to space.\nProgress and settings are stored on this Apple TV."
         case "resetConfirm": return js.objectForKeyedSubscript("nodes")?.forProperty("resetConfirmText")?.forProperty("textContent")?.toString() ?? ""
         case "whatsNew": return "The game is out!\nGrow all the way to space."
         case "settings": return "Progress and settings are saved on this Apple TV."
         case "how": return "Steer left and right. Catch water before you run dry. Avoid rocks, birds, clouds, storms, and balloons. Sun orbs give you a shield; seed packs grant a random ability. Reach 100,000 m to win. Play/Pause pauses your run." + ((js.evaluateScript("!nodes.seedInfoPanel.classList.contains(\"hidden\")")?.toBool() ?? false) ? "\n\nSeed packs can cause Dehydration, Big, Small, Slow, or Fast. Dehydration is the most common." : "")
-        case "updatesInfo": return "This native build updates when a new version is installed from Xcode."
         case "evos": return (snap["evolutions"] as? [[String:Any]] ?? []).map{"\(($0["unlocked"] as? Bool ?? false) ? $0["name"] ?? "" : "Locked") — \($0["m"] ?? 0) m\n\(($0["unlocked"] as? Bool ?? false) ? $0["desc"] ?? "" : "Keep growing to unlock this form.")"}.joined(separator:"\n\n")
         default: return (menu["text"] as? String ?? "").prefix(1000).description
         }

@@ -12,13 +12,12 @@
   const startEl = $('start'), overEl = $('over'), howEl = $('how'), evosEl = $('evos'), pauseEl = $('pause'), countEl = $('count'), settingsEl = $('settings'), endlessInfoEl = $('endlessInfo'), aboutEl = $('about');
   const victoryRoomEl = $('victoryRoom'), moonSceneEl = $('moonScene');
   const whatsNewEl = $('whatsNew');
-  const updatesInfoEl = $('updatesInfo');
   const hapticToggle = $('hapticToggle'), soundToggle = $('soundToggle'), tvToggle = $('tvToggle');
 
   // ---------- version / what's new ----------
   // Change these two values when releasing an update. Keep the changelog text here
   // so it is quick to edit without touching the update-board logic.
-  const CURRENT_VERSION = '1.0.7';
+  const CURRENT_VERSION = '1.0.8';
   const CHANGELOG = [
     'The game is out!',
     'The goal is to reach space, how far can you grow?',
@@ -1040,7 +1039,7 @@
   }
 
   function openSettings() {
-    hide(startEl); hide(howEl); hide(evosEl); hide(aboutEl); hide(updatesInfoEl);
+    hide(startEl); hide(howEl); hide(evosEl); hide(aboutEl);
     show(settingsEl);
     updateSettingsUI();
   }
@@ -1048,7 +1047,6 @@
   function closeSettings() {
     hide(settingsEl);
     hide(aboutEl);
-    hide(updatesInfoEl);
     show(startEl);
   }
 
@@ -1133,7 +1131,7 @@
     musicLevel = MUSIC_GAME;
     applyMusicVolume(0.8);
     reset();
-    hide(startEl); hide(overEl); hide(pauseEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(updatesInfoEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
+    hide(startEl); hide(overEl); hide(pauseEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
     hudEl.classList.add('hidden');
     state = 'intro';
     requestWakeLock();
@@ -1470,17 +1468,6 @@
     sfx.pop();
     hide(settingsEl);
     openWhatsNew('settings');
-  });
-  $('updatesInfoBtn').addEventListener('click', () => {
-    initAudio();
-    sfx.pop();
-    hide(settingsEl);
-    show(updatesInfoEl);
-  });
-  $('updatesInfoBack').addEventListener('click', () => {
-    hide(updatesInfoEl);
-    show(settingsEl);
-    updateSettingsUI();
   });
   $('play').addEventListener('click', () => startGame());
   $('shareScore').addEventListener('click', async () => {
@@ -2517,7 +2504,6 @@
   function pushBackGuard() { try { history.pushState({ bbGuard: true }, ''); } catch (e) {} }
   function closeTopOverlay() {
     if (!whatsNewEl.classList.contains('hidden')) return true;
-    if (!updatesInfoEl.classList.contains('hidden')) { hide(updatesInfoEl); show(settingsEl); updateSettingsUI(); return true; }
     if (!settingsEl.classList.contains('hidden')) {
       if (!aboutEl.classList.contains('hidden')) { hide(aboutEl); show(settingsEl); updateSettingsUI(); }
       else closeSettings();
@@ -2544,7 +2530,7 @@
   // A web page sees the Siri Remote as some mix of: arrow keys + Enter (swipe / click), a back key or
   // history-back (Menu), media keys (Play/Pause) or a Gamepad. Everything funnels into four helpers:
   // navMove (d-pad around a menu), navSelect (press the highlighted button), remoteBack, togglePauseKey.
-  const NAV_OVERLAYS = ['whatsNew', 'resetConfirm', 'updatesInfo', 'about', 'settings', 'evos', 'how', 'endlessInfo', 'moonScene', 'pause', 'over', 'start'];
+  const NAV_OVERLAYS = ['whatsNew', 'resetConfirm', 'about', 'settings', 'evos', 'how', 'endlessInfo', 'moonScene', 'pause', 'over', 'start'];
   const NAV_DEFAULT = { whatsNew: 'whatsNewDismiss', resetConfirm: 'resetConfirmNo', pause: 'resume', over: 'again', start: 'play', moonScene: 'moonPlayAgain', endlessInfo: 'endlessInfoBack' };
   const KEEP_FOCUS = { start: true, settings: true };       // come back to the button you left from
   const lastFocus = {};
