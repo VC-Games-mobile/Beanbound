@@ -7,3 +7,5 @@ iOS version 1.0.9 (4); Apple TV version 1.0.8 (4). Signed iOS archive: /tmp/Bean
 This update has not been uploaded to App Store Connect or submitted for review. The existing submission has not been changed; its current status has not been checked during this update. App Store Connect privacy/support metadata may still require updating separately.
 
 Validation: iPhone 17 Pro and iPad Pro 13-inch simulator integration tests passed (fonts, mobile layout, audio, steering, background pause, saved settings). Apple TV runtime tests and signed build passed. Installed and launched the update on Living Room Apple TV. Physical iPhone/iPad installations were attempted but blocked because both devices were locked. Physical gameplay of this update has not yet been verified.
+
+October 17 follow-up: installed and launched 1.0.9 (4) on Luke’s iPhone 14. iPad installation remains blocked because the device is locked.
