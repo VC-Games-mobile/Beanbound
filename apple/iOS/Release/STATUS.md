@@ -35,3 +35,5 @@ October 17: saved App Store subtitle "How far can you grow?" in App Information 
 
 October 17 at 1:58 PM America/Detroit: submitted iOS 1.0.9 (5). App Store Connect confirmed Waiting for Review. Submission ID: aaa47c04-f5c1-4837-b37d-2df0aed943b2. Automatic release after approval, immediately to all users; existing rating preserved. Exact owner description and subtitle included. Corrected Support and Privacy Policy URLs to /Beanbound/. Review notes updated for build 5. No new agreement acceptance was required or performed in the submission flow.
 Review URL: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/aaa47c04-f5c1-4837-b37d-2df0aed943b2
+
+October 18: App Store Connect confirms iOS 1.0.9 is Ready for Distribution after review. Public privacy/support pages also deployed successfully: removed web-game navigation, changed privacy branding to LokeWorks, and fixed issue links. No replacement binary required for these hosted-page changes.
