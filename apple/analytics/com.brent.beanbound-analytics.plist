@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PYTHONUNBUFFERED</key>
+		<string>1</string>
+		<key>TZ</key>
+		<string>America/Detroit</string>
+	</dict>
+	<key>Label</key>
+	<string>com.brent.beanbound-analytics</string>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/brent/.config/beanbound-analytics/.venv/bin/python</string>
+		<string>/Users/brent/.local/share/beanbound-analytics/report.py</string>
+		<string>--send</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/brent/Library/Logs/beanbound-analytics/stderr.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/brent/Library/Logs/beanbound-analytics/stdout.log</string>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>10</integer>
+		<key>Minute</key>
+		<integer>0</integer>
+	</dict>
+	<key>WorkingDirectory</key>
+	<string>/Users/brent/.local/share/beanbound-analytics</string>
+</dict>
+</plist>
