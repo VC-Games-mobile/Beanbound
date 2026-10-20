@@ -37,3 +37,6 @@ October 17 at 1:58 PM America/Detroit: submitted iOS 1.0.9 (5). App Store Connec
 Review URL: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/aaa47c04-f5c1-4837-b37d-2df0aed943b2
 
 October 18: App Store Connect confirms iOS 1.0.9 is Ready for Distribution after review. Public privacy/support pages also deployed successfully: removed web-game navigation, changed privacy branding to LokeWorks, and fixed issue links. No replacement binary required for these hosted-page changes.
+
+October 20 at 3:48 PM America/Detroit: submitted iOS 1.1.0 (6), adding functional Endless Mode with changing 100,000-metre stretches and separate records. Upload succeeded at 3:45 PM. App Store Connect confirms Waiting for Review. Submission ID: 259c00ad-b20c-4244-9b41-30876b367a82. Automatic release after approval, immediately to all users; existing rating preserved. Release/review notes and existing iPhone/iPad screenshots included. No new agreement acceptance was required or performed.
+Review URL: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/259c00ad-b20c-4244-9b41-30876b367a82

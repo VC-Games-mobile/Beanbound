@@ -4,7 +4,7 @@ October 20, 2026: added functional Endless Mode to the shared native game and ex
 
 Endless best uses its own local persistence key, leaving normal Play best unchanged. Replay/restart preserve mode; returning to menu then selecting Play restores normal mode. Normal Play still ends at 100,000 metres. Reset Progress clears both records. Existing native save, audio, lifecycle, and controls are retained. Apple TV resources include the same gameplay and show stretch information.
 
-Signed archive: /tmp/Beanbound-1.1.0-build6.xcarchive. This build has not been uploaded to App Store Connect or submitted for review.
+Signed archive: /tmp/Beanbound-1.1.0-build6.xcarchive. Uploaded successfully to App Store Connect on October 20, 2026 at 3:45 PM America/Detroit. Processing completed and iOS 1.1.0 (6) was submitted at 3:48 PM America/Detroit. App Store Connect confirms Waiting for Review. Submission ID: 259c00ad-b20c-4244-9b41-30876b367a82. Automatic release after approval, immediately to all users; existing rating preserved. Release notes and reviewer instructions saved; existing iPhone/iPad screenshots retained. No new agreement acceptance was required or performed.
 
 Native engine tests crossed 12 boundaries, checked five palette variations, continued hazards and rain, water recovery, mode-preserving replay, separate scores, and normal victory. Existing native runtime tests passed. Both signed native builds succeeded. iPhone/iPad integration tests and device installation status are recorded below when complete. Long physical-device play has not yet been verified.
 

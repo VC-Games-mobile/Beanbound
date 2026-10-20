@@ -1,0 +1,9 @@
+Beanbound 1.1.0 (6) adds working Endless Mode. From the main menu, tap Endless Mode and drag left/right to steer. Catch water and avoid hazards. The run continues beyond 100,000 metres; each additional 100,000-metre stretch changes the space colours and hazard sequence, increases speed modestly, restores water, and grants brief protection. Endless best scores are saved separately. Play retains its normal ending at 100,000 metres. Restart/Play Again retains the selected mode. Pause opens the pause menu; Settings controls sound and haptics.
+
+Purpose and audience: Beanbound is a casual arcade game for players who enjoy short skill-based runs, growing a beanstalk from underground to space and unlocking evolutions. It provides offline entertainment with simple touch controls.
+
+No setup, login credentials, accounts, sample files, ads, in-app purchases, user-generated content, analytics SDKs, or external services are required. All game code, artwork, fonts, and music are bundled locally. Scores, settings, and unlocked evolutions stay on the device. Native iOS features include persistence, haptics, sharing, and lifecycle handling. Features are consistent across regions; the game is in English.
+
+The app does not operate in a regulated industry. The developer has permission to distribute its code, artwork, and music; included font licenses are available in Credits.
+
+Validation: iPhone and iPad simulator integration tests passed for Endless mode selection/restart, fonts, layout, audio, steering, lifecycle, and persistence. Engine tests passed through twelve 100,000-metre milestones, including separate records and the normal Play ending. Build 6 was exported from the release archive with development signing, installed, and launched on a physical iPhone 14.
