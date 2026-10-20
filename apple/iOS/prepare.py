@@ -2,8 +2,7 @@
 from pathlib import Path
 root=Path(__file__).resolve().parent
 html=(root.parent/'index.html').read_text()
-html=html.replace('1.0.8', '1.0.9').replace('Beanbound TV', 'Beanbound')
-html=html.replace('<button id="endless" class="btn alt">', '<button id="endless" class="btn alt" hidden style="display:none">')
+html=html.replace('1.0.8', '1.1.0').replace('Beanbound TV', 'Beanbound')
 html=html.replace("sign(leftX, '#566B9C', 'GO TO THE', 'MOON');", "sign(leftX, '#566B9C', 'PLAY AGAIN', 'NEW CLIMB');")
 html=html.replace('      showMoonComingSoon();\n      return;', '      startGame();\n      return;')
 html=html.replace("'Congratulations, you made it!', vw / 2", "'You reached space!', vw / 2")
@@ -32,7 +31,7 @@ html=html.replace(marker,'''  // Native lifecycle stops input and audio while th
   window.beanboundNative = {
     background() { keys.l = keys.r = false; ptr = null; padX = 0; pauseGame(); if (AC) AC.suspend(); },
     foreground() { if (AC) AC.resume(); },
-    snapshot() { return {state, score, best, maxM, muted, playerX:P.x, audio:AC ? AC.state : 'uninitialized'}; }
+    snapshot() { return {state, endless, endlessLoop, endlessBest, score, best, maxM, muted, playerX:P.x, audio:AC ? AC.state : 'uninitialized'}; }
   };
   requestAnimationFrame(frame);
 })();''')

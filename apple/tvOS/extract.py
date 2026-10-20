@@ -22,7 +22,7 @@ p=Parser(); p.feed(html)
 script = re.search(r'<script>(.*?)</script>', html, re.S).group(1)
 # The browser engine is unchanged; expose only its native host boundary.
 script=script.replace('  requestAnimationFrame(frame);\n})();', '''  globalThis.beanbound = {
-    snapshot: () => ({state, score, water, best, maxM, playerX: P.x, layer: LAYERS[layer].name,
+    snapshot: () => ({state, endless, endlessLoop, endlessBest, score, water, best: runBest(), normalBest: best, maxM, playerX: P.x, layer: endless ? 'Endless ' + (endlessLoop + 1) + (endlessLoop ? ' · ' + endlessTheme(endlessLoop).name : '') : LAYERS[layer].name,
       ability: ability ? abilityLabel(ability) : '', muted,
       overlay: topOverlay() ? topOverlay().id : '',
       splash: !isHidden(splashEl), countdown: countEl.textContent,

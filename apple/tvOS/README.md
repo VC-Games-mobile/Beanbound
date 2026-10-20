@@ -4,7 +4,7 @@ Native tvOS app for the Living Room Apple TV. Uses the original `index.html` gam
 
 ## Play
 
-Select Play. Click the left/right edge of the Siri Remote, or slide across its touch surface, to steer. Play/Pause pauses or resumes; Menu/Back closes a menu or pauses gameplay. On the main menu, Menu/Back returns to the Apple TV Home screen. Bluetooth gamepads also support steering.
+Select Play for the original climb, or Endless Mode for changing stretches every 100,000 metres and a separate best score. Click the left/right edge of the Siri Remote, or slide across its touch surface, to steer. Play/Pause pauses or resumes; Menu/Back closes a menu or pauses gameplay. On the main menu, Menu/Back returns to the Apple TV Home screen. Bluetooth gamepads also support steering.
 
 ## Build and install
 
@@ -29,7 +29,7 @@ xcrun devicectl device process launch --device E5156745-93FB-5C1E-B729-4E6EDFF96
 
 Runtime tests cover splash/menu transitions, evolution rendering, steering, pause/frozen simulation, resume countdown, background pause, reset cancellation, rendering commands, original music reaching native audio, and mute/unmute. Simulator visual checks cover the menu, Select-to-play, hazards, game over, and return to menu. Signed builds are installed using the paired device.
 
-The native menus and canvas text use the original embedded Bagel Fat One and Figtree fonts; the evolution gallery lists unlocks and descriptions rather than the browser's image cards. Audio preserves the procedural melody and sound effects with a native oscillator synth; browser echo/panning/noise effects are simplified. Sharing a score is omitted on TV. Endless Mode and the Moon remain coming-soon content from the original game. This is a development installation, not an App Store/TestFlight release; it must be re-signed and reinstalled when its provisioning profile expires.
+The native menus and canvas text use the original embedded Bagel Fat One and Figtree fonts; the evolution gallery lists unlocks and descriptions rather than the browser's image cards. Audio preserves the procedural melody and sound effects with a native oscillator synth; browser echo/panning/noise effects are simplified. Sharing a score is omitted on TV. Endless Mode continues beyond space with changing hazard mixes and palettes. The Moon remains coming-soon content from the original game. This is a development installation, not an App Store/TestFlight release; it must be re-signed and reinstalled when its provisioning profile expires.
 
 ## Performance and focus fixes
 
@@ -44,3 +44,5 @@ To regenerate fonts after replacing the original HTML fonts: create a Python env
 Physical-device validation on October 3, 2026 measured 29.6fps during an early-game run with diagnostics enabled. Simulator checks confirmed navigation to the last Settings option and focus retention after toggling sound. Later stages and extended play have not been profiled.
 
 Build 3 restores the original music by exposing the native AudioContext on window. Music output and mute/unmute pass runtime tests. A subsequent Living Room device run with music enabled measured 30.0fps during steady early gameplay; startup briefly averaged 25.1fps. Normal launch disables diagnostics and autoplay.
+
+Endless boundary regression: `swift tvOS/tests/EndlessTests.swift` uses the real game/host with test access injected only in memory; it never ships a debug jump control.

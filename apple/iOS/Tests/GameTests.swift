@@ -60,4 +60,25 @@ final class GameTests: XCTestCase {
         XCTAssertEqual(savedMute, muted)
         _ = try await evaluate("localStorage.removeItem('beanbound-ios-test');document.getElementById('soundToggle').click()", in: next)
     }
+    func testEndlessModeMenuAndRestart() async throws {
+        let app = UIApplication.shared.delegate as! AppDelegate
+        let game = GameViewController()
+        app.window!.rootViewController = game
+        try await ready(game)
+        try await Task.sleep(nanoseconds: 3_000_000_000)
+        _ = try await evaluate("document.getElementById('whatsNewDismiss').click();document.getElementById('overMenu').click()", in: game)
+        let visible = try await evaluate("(() => {const b=document.getElementById('endless');const r=b.getBoundingClientRect();return !b.hidden && getComputedStyle(b).display!=='none' && r.width>0})()", in: game) as? Bool
+        XCTAssertEqual(visible, true)
+        _ = try await evaluate("document.getElementById('endless').click();document.getElementById('restart').click()", in: game)
+        let endless = try await evaluate("beanboundNative.snapshot().endless && beanboundNative.snapshot().state==='play'", in: game) as? Bool
+        XCTAssertEqual(endless, true, "Endless starts and restart preserves its mode")
+        _ = try await evaluate("beanboundNative.background()", in: game)
+        let paused = try await evaluate("beanboundNative.snapshot().endless && beanboundNative.snapshot().state==='paused'", in: game) as? Bool
+        XCTAssertEqual(paused, true)
+        _ = try await evaluate("beanboundNative.foreground();document.getElementById('overMenu').click();document.getElementById('play').click()", in: game)
+        let normal = try await evaluate("!beanboundNative.snapshot().endless", in: game) as? Bool
+        XCTAssertEqual(normal, true, "Normal Play remains a separate mode")
+        _ = try await evaluate("document.getElementById('overMenu').click()", in: game)
+    }
+
 }

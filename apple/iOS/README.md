@@ -2,7 +2,7 @@
 
 One universal iOS app with the original game's touch controls, embedded fonts and artwork, procedural Web Audio music and sound effects. The game is bundled locally and works offline. Supports iOS/iPadOS 17 or later, portrait and landscape, plus resizable iPad windows.
 
-Drag across the game to steer. Tap Pause to pause; returning from another app leaves the run paused until you resume. The native wrapper provides iPhone haptics, an iPad-safe score share sheet, and persistent progress/settings in UserDefaults. Saves are local to each device; there is no iCloud sync between iPhone, iPad, and Apple TV.
+Choose Play for the original climb to 100,000 metres, or Endless Mode to keep growing through changing stretches every 100,000 metres. Endless has a separate best score. Drag across the game to steer. Tap Pause to pause; returning from another app leaves the run paused until you resume. The native wrapper provides iPhone haptics, an iPad-safe score share sheet, and persistent progress/settings in UserDefaults. Saves are local to each device; there is no iCloud sync between iPhone, iPad, and Apple TV.
 
 ## Run on a device
 

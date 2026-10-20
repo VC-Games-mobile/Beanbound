@@ -138,14 +138,14 @@ final class GameViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     private func menuText(_ menu:[String:Any],snap:[String:Any])->String {
         switch overlay {
-        case "start": return "Grow a beanstalk from deep underground all the way to space.\nBest: \(snap["best"] ?? 0)\nUse the remote’s touch surface or click left and right to steer."
+        case "start": return "Grow a beanstalk from deep underground all the way to space.\nBest: \(snap["normalBest"] ?? 0) · Endless best: \(snap["endlessBest"] ?? 0)\nUse the remote’s touch surface or click left and right to steer."
         case "over": return ["finalScore","statLine","evoLine","bestLine"].compactMap{js.objectForKeyedSubscript("nodes")?.forProperty($0)?.forProperty("textContent")?.toString()}.filter{!$0.isEmpty}.joined(separator:"\n")
         case "pause": return js.objectForKeyedSubscript("nodes")?.forProperty("pauseInfo")?.forProperty("textContent")?.toString() ?? ""
-        case "about": return "Beanbound 1.0.8 • LokeWorks\nA tiny game about growing a bean all the way to space.\nProgress and settings are stored on this Apple TV."
+        case "about": return "Beanbound 1.1.0 • LokeWorks\nA tiny game about growing a bean all the way to space.\nProgress and settings are stored on this Apple TV."
         case "resetConfirm": return js.objectForKeyedSubscript("nodes")?.forProperty("resetConfirmText")?.forProperty("textContent")?.toString() ?? ""
         case "whatsNew": return "The game is out!\nGrow all the way to space."
         case "settings": return "Progress and settings are saved on this Apple TV."
-        case "how": return "Steer left and right. Catch water before you run dry. Avoid rocks, birds, clouds, storms, and balloons. Sun orbs give you a shield; seed packs grant a random ability. Reach 100,000 m to win. Play/Pause pauses your run." + ((js.evaluateScript("!nodes.seedInfoPanel.classList.contains(\"hidden\")")?.toBool() ?? false) ? "\n\nSeed packs can cause Dehydration, Big, Small, Slow, or Fast. Dehydration is the most common." : "")
+        case "how": return "Steer left and right. Catch water before you run dry. Avoid rocks, birds, clouds, storms, and balloons. Sun orbs give you a shield; seed packs grant a random ability. Play reaches space at 100,000 m. Endless keeps going with a new stretch every 100,000 m. Play/Pause pauses your run." + ((js.evaluateScript("!nodes.seedInfoPanel.classList.contains(\"hidden\")")?.toBool() ?? false) ? "\n\nSeed packs can cause Dehydration, Big, Small, Slow, or Fast. Dehydration is the most common." : "")
         case "evos": return (snap["evolutions"] as? [[String:Any]] ?? []).map{"\(($0["unlocked"] as? Bool ?? false) ? $0["name"] ?? "" : "Locked") — \($0["m"] ?? 0) m\n\(($0["unlocked"] as? Bool ?? false) ? $0["desc"] ?? "" : "Keep growing to unlock this form.")"}.joined(separator:"\n\n")
         default: return (menu["text"] as? String ?? "").prefix(1000).description
         }
