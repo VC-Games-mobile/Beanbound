@@ -40,3 +40,5 @@ October 18: App Store Connect confirms iOS 1.0.9 is Ready for Distribution after
 
 October 20 at 3:48 PM America/Detroit: submitted iOS 1.1.0 (6), adding functional Endless Mode with changing 100,000-metre stretches and separate records. Upload succeeded at 3:45 PM. App Store Connect confirms Waiting for Review. Submission ID: 259c00ad-b20c-4244-9b41-30876b367a82. Automatic release after approval, immediately to all users; existing rating preserved. Release/review notes and existing iPhone/iPad screenshots included. No new agreement acceptance was required or performed.
 Review URL: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/259c00ad-b20c-4244-9b41-30876b367a82
+
+October 21: App Store Connect confirms 1.1.0 (6) is Ready for Distribution. Owner requested changing “colours” to “colors” in What’s New. Published release notes are disabled in App Store Connect, so no live text was changed. Corrected the saved WHATS-NEW-1.1.0.txt copy for future reuse; original submitted text remains in the submission evidence.
