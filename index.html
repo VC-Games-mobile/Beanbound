@@ -543,7 +543,7 @@
   <div class="mtop">
     <h1>Beanbound</h1>
     <p class="tag">Grow a beanstalk from deep underground all the way to space.</p>
-    <p class="tag menu-version">V1.0.8</p>
+    <p class="tag menu-version">V1.1.0</p>
   </div>
   <div class="mbottom">
     <div class="stack">
@@ -575,6 +575,7 @@
     </section>
 
     <section class="how-section" aria-labelledby="pickupsTitle">
+      <p class="lead">Play reaches space at 100,000 metres. Endless Mode keeps going, changing the scenery and hazards every 100,000 metres.</p>
       <h3 id="pickupsTitle">Abilities</h3>
       <ul class="legend">
         <li><span class="ic"><i class="sw rain"></i></span><b>Water:</b>&nbsp; restores your water</li>
@@ -610,8 +611,8 @@
 
 <div id="endlessInfo" class="overlay solid hidden" role="dialog" aria-labelledby="endlessInfoTitle">
   <div class="card">
-    <h2 id="endlessInfoTitle">Not done yet</h2>
-    <p class="lead">Endless Mode is coming soon. It isn't finished yet, but it'll be added in a future update.</p>
+    <h2 id="endlessInfoTitle">Endless Mode</h2>
+    <p class="lead">Keep growing beyond space. Every 100,000 metres brings a new colour theme and hazard mix, with a little more speed. Your Endless best is saved separately.</p>
     <button id="endlessInfoBack" class="btn">Back</button>
   </div>
 </div>
@@ -667,7 +668,7 @@
     <h2 id="aboutTitle">About Beanbound</h2>
     <p class="lead">A tiny game about growing a bean all the way to space.</p>
     <div class="settings-list">
-      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.0.8 — Latest release</span></div></div>
+      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.1.0 — Latest release</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Developer</b><span>LokeWorks</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Saved data</b><span>Your progress and settings are stored locally on this device.</span></div></div>
     </div>
@@ -750,11 +751,11 @@
   // ---------- version / what's new ----------
   // Change these two values when releasing an update. Keep the changelog text here
   // so it is quick to edit without touching the update-board logic.
-  const CURRENT_VERSION = '1.0.8';
+  const CURRENT_VERSION = '1.1.0';
   const CHANGELOG = [
-    'The game is out!',
-    'The goal is to reach space, how far can you grow?',
-    'Auto updates, you only need to manually update for events!'
+    'Endless Mode is here! Grow beyond 100,000 metres.',
+    'Every 100,000 metres changes the space colours and hazard mix.',
+    'Endless best scores are saved separately from normal Play.'
   ];
   const SAVED_VERSION_KEY = 'beanbound2-version';
   const SAVED_CHANGELOG_KEY = 'beanbound2-changelog';
@@ -856,9 +857,27 @@
   const DIRT_PX = M(DIRT_M), GROUND_PX = M(GROUND_M), END_PX = M(END_M);
   const GY = -DIRT_PX;                               // world y of the grass line, the surface
   const LAYERS = [{ name: 'Dirt', m: 0 }, { name: 'Ground', m: DIRT_M }, { name: 'Sky', m: GROUND_M }, { name: 'Space', m: END_M }];
+  let endless = false, endlessLoop = 0;
+  const ENDLESS_THEMES = [
+    {name: 'Moonlight', top: '#101E42', bot: '#5978A8'},
+    {name: 'Aurora', top: '#071F38', bot: '#278C79'},
+    {name: 'Solar Drift', top: '#3F163B', bot: '#C96952'},
+    {name: 'Stardust', top: '#241344', bot: '#8D64BA'},
+    {name: 'Deep Space', top: '#070E25', bot: '#265A72'}
+  ];
+  const loopAt = d => endless ? Math.floor(Math.max(0, d) / END_PX) : 0;
+  const endlessTheme = loop => ENDLESS_THEMES[(loop - 1) % ENDLESS_THEMES.length];
+  const runBest = () => endless ? endlessBest : best;
+  function endlessSky(d) {
+    const loop = loopAt(d), theme = endlessTheme(loop);
+    const previous = loop === 1 ? {top: '#0B0A26', bot: '#2A2160'} : endlessTheme(loop - 1);
+    const fade = Math.min(1, (d % END_PX) / M(2000));
+    return [mix(hex(previous.top), hex(theme.top), fade), mix(hex(previous.bot), hex(theme.bot), fade)];
+  }
   const fmt = n => Math.round(n).toLocaleString('en-US');
   function hash(a, b) { const v = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return v - Math.floor(v); }
   function skyT(d) {                                 // how far through the sky colors we are
+    if (endless && d >= END_PX) return 1;
     if (d <= DIRT_PX) return 0;
     if (d <= GROUND_PX) return 0.3 * (d - DIRT_PX) / (GROUND_PX - DIRT_PX);
     return 0.3 + 0.7 * Math.min(1, (d - GROUND_PX) / (END_PX - GROUND_PX));
@@ -1046,6 +1065,8 @@
   ];
   let score = 0, lastScore = -1, lastWater = -1, lastShownBest = -1, lastHmShown = -99, lastLayerShown = -1;
   const keys = { l: false, r: false };
+  let endlessBest = 0;
+  try { endlessBest = parseInt(localStorage.getItem('beanbound2-endless-best') || '0', 10) || 0; } catch (e) {}
   let best = 0, maxM = 0;      // best score, and the furthest height ever reached (unlocks evolutions)
   try { best = parseInt(localStorage.getItem('beanbound2-best') || '0', 10) || 0; } catch (e) {}
   try { maxM = parseInt(localStorage.getItem('beanbound2-maxm') || '0', 10) || 0; } catch (e) {}
@@ -1054,7 +1075,7 @@
   // artifact's database when that's available, so it survives across sessions.
   let bestRef = null, saveChain = Promise.resolve();
   function setLocalProgress() {
-    try { localStorage.setItem('beanbound2-best', String(best)); localStorage.setItem('beanbound2-maxm', String(maxM)); } catch (e) {}
+    try { localStorage.setItem('beanbound2-best', String(best)); localStorage.setItem('beanbound2-maxm', String(maxM)); localStorage.setItem('beanbound2-endless-best', String(endlessBest)); } catch (e) {}
   }
   function saveProgress() {
     setLocalProgress();
@@ -1087,6 +1108,7 @@
 
   function reset() {
     P = { x: W / 2, y: 30, vx: 0, ang: 0, sq: 0, open: 0 };   // the shoot starts deep in the dirt, inside its seed
+    endlessLoop = 0;
     tx = W / 2; dist = 0; water = 100; shield = false; shieldTime = 0; invuln = 0; bonus = 0; time = 0;
     ability = null; abilityTime = 0;
     score = 0; lastScore = -1; lastWater = -1; lastShownBest = -1; lastHmShown = -99; lastLayerShown = -1;
@@ -1120,15 +1142,22 @@
   }
   function spawnRow() {
     const sp = spawnDist;
-    if (sp > END_PX + 400) { spawnDist += 600; return; }          // nothing past the edge of space
-    if (sp >= nextShower && sp < END_PX - 3000) {
+    if (!endless && sp > END_PX + 400) { spawnDist += 600; return; }          // nothing past the edge of space
+    if (sp >= nextShower && (endless || sp < END_PX - 3000)) {
       showers.push({ y0: -(sp + 320), y1: -sp, under: sp < DIRT_PX });
       nextShower += 5000; spawnDist += 420;
       return;
     }
+    const loop = loopAt(sp), local = loop ? sp % END_PX : sp;
+    // Later stretches rotate through all three hazard families in a new order.
+    // Distance and the stalk never reset at a loop boundary.
     const d = Math.min(sp / M(60000), 1);
-    const L = sp < DIRT_PX ? 0 : sp < GROUND_PX ? 1 : 2;
-    const lp = L === 0 ? sp / DIRT_PX : L === 1 ? (sp - DIRT_PX) / (GROUND_PX - DIRT_PX) : Math.min((sp - GROUND_PX) / M(30000), 1);
+    const L = loop ? (Math.floor(local / END_PX * 3) + loop) % 3 : sp < DIRT_PX ? 0 : sp < GROUND_PX ? 1 : 2;
+    const lp = loop ? (local / (END_PX / 3)) % 1 : L === 0 ? sp / DIRT_PX : L === 1 ? (sp - DIRT_PX) / (GROUND_PX - DIRT_PX) : Math.min((sp - GROUND_PX) / M(30000), 1);
+    // A short clear corridor makes each transition fair even on a narrow screen.
+    if (loop && local < M(250)) {
+      dropArc(W / 2, -sp, 4, 1); spawnDist += 250; return;
+    }
     const y = -sp;
     const dir = Math.random() < 0.5 ? -1 : 1;
     let pool;
@@ -1318,7 +1347,7 @@
     }
     P.sq = Math.max(0, P.sq - 5 * dt);
     const ramp = Math.min(1, 0.35 + (time / 1.2) * 0.65);
-    const spd = (190 + diff() * 110) * ramp * SPDM * abilitySpeed();
+    const spd = (190 + diff() * 110) * ramp * SPDM * abilitySpeed() * (endless ? 1 + Math.min(endlessLoop, 6) * 0.03 : 1);
 
     // steering
     if (keys.l || keys.r) tx = clamp(tx + ((keys.r ? 1 : 0) - (keys.l ? 1 : 0)) * 420 * dt, 16, W - 16);
@@ -1338,6 +1367,17 @@
     if (Math.hypot(P.x - last.x, P.y - last.y) >= 7) trail.push({ x: P.x, y: P.y, d: dist });
     while (trail.length > 3 && trail[1].y > cam + H + 140) trail.shift();
     const mat = maturity(), meters = dist / UNIT;
+    if (endless && loopAt(dist) > endlessLoop) {
+      endlessLoop = loopAt(dist);
+      water = Math.max(water, 75);
+      invuln = Math.max(invuln, 2);
+      floaters.push({x: W / 2, y: P.y - 150, life: 3, text: 'Stretch ' + (endlessLoop + 1) + ': ' + endlessTheme(endlessLoop).name});
+      sfx.stage(); buzz(25);
+      maxM = Math.max(maxM, Math.floor(meters));
+      endlessBest = Math.max(endlessBest, Math.floor(meters) + bonus);
+      saveProgress();
+      updateHud(true);
+    }
     if (P.y < GY - 8) {          // leaves and blooms only grow above the soil
       if (dist - lastLeafDist >= 70 - 24 * mat) {
         lastLeafDist = dist; leafSide = -leafSide;
@@ -1429,7 +1469,7 @@
     }
 
     // a marker every 5,000 m
-    while (dist >= nextMile && nextMile < END_PX) {
+    while (dist >= nextMile && (endless || nextMile < END_PX)) {
       const m = Math.round(nextMile / UNIT); nextMile += M(5000); bonus += 250;
       floaters.push({ x: W / 2, y: P.y - 100, life: 1.5, text: fmt(m) + ' m' });
       sfx.mile(); buzz(15);
@@ -1451,7 +1491,7 @@
     if (water <= 0 && state === 'play') die('wilt');
 
     score = Math.floor(meters) + bonus;
-    if (dist >= END_PX && state === 'play') {
+    if (!endless && dist >= END_PX && state === 'play') {
       // Stop exactly at the milestone so the victory score is 100,000 m, not an overshoot.
       dist = END_PX;
       P.y = -END_PX;
@@ -1464,7 +1504,7 @@
 
   function updateHud(force) {
     if (score !== lastScore || force) { scoreEl.textContent = fmt(score); lastScore = score; }
-    const shownBest = Math.max(best, score);      // the "best" label follows you once you pass it
+    const shownBest = Math.max(runBest(), score);      // the "best" label follows you once you pass it
     if (shownBest !== lastShownBest || force) {
       lastShownBest = shownBest;
       hudBest.hidden = shownBest <= 0;
@@ -1473,7 +1513,7 @@
     const hm = Math.floor(dist / UNIT);
     if (force || hm - lastHmShown >= 7 || layer !== lastLayerShown) {
       lastHmShown = hm; lastLayerShown = layer;
-      layerPill.textContent = LAYERS[layer].name + ' · ' + fmt(hm) + ' m';
+      layerPill.textContent = (endless ? 'Endless ' + (endlessLoop + 1) + (endlessLoop ? ' · ' + endlessTheme(endlessLoop).name : '') : LAYERS[layer].name) + ' · ' + fmt(hm) + ' m';
     }
     const w = Math.round(clamp(water, 0, 100));
     if (w !== lastWater || force) {
@@ -1821,7 +1861,7 @@
       showResetConfirm(resetConfirmStep + 1);
       return;
     }
-    best = 0; maxM = 0;
+    best = 0; endlessBest = 0; maxM = 0;
     saveProgress();
     updateBestStart();
     buildEvos();
@@ -1847,7 +1887,8 @@
     applyMusicVolume(0.05);
   }
 
-  function startGame(quick) {
+  function startGame(quick, mode = endless) {
+    endless = mode;
     initAudio();
     musicLevel = MUSIC_GAME;
     applyMusicVolume(0.8);
@@ -1863,6 +1904,7 @@
   }
 
   function toMenu() {
+    endless = false;
     hide(pauseEl); hide(overEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
     hudEl.classList.add('hidden'); hintEl.classList.add('hidden');
     ptr = null;
@@ -2082,8 +2124,8 @@
     hintEl.classList.add('hidden');
     ptr = null;
     if (!won) score = Math.floor(dist / UNIT) + bonus;
-    const isBest = score > best;
-    if (isBest) best = score;
+    const isBest = score > runBest();
+    if (isBest) { if (endless) endlessBest = score; else best = score; }
     maxM = Math.max(maxM, Math.floor(dist / UNIT));
     saveProgress();
     const fresh = EVOS.filter(e => e.m > runStartM && e.m <= maxM);
@@ -2101,14 +2143,14 @@
     }
     $('overTitle').textContent = TITLES[kind] || 'You fell';
     $('finalScore').textContent = fmt(score);
-    $('statLine').textContent = 'Grew ' + fmt(Math.floor(dist / UNIT)) + ' m as a ' + EVOS[curEvo].name;
+    $('statLine').textContent = (endless ? 'Endless · Stretch ' + (endlessLoop + 1) + ' · Grew ' : 'Grew ') + fmt(Math.floor(dist / UNIT)) + ' m as a ' + EVOS[curEvo].name;
     $('evoLine').innerHTML = fresh.length ? '<span class="badge">' + (fresh.length > 1 ? fresh.length + ' new evolutions, latest: ' : 'New evolution: ') + fresh[fresh.length - 1].name + '</span>' : '';
-    $('bestLine').innerHTML = isBest ? '<span class="badge">New best!</span>' : 'Best ' + fmt(best);
+    $('bestLine').innerHTML = isBest ? '<span class="badge">New best!</span>' : 'Best ' + fmt(runBest());
     setTimeout(() => { if (state === 'over') overEl.classList.remove('hidden'); }, 500);
   }
 
   function updateBestStart() {
-    $('bestStart').textContent = best > 0 ? 'Best ' + fmt(best) : '';
+    $('bestStart').textContent = [best > 0 ? 'Best ' + fmt(best) : '', endlessBest > 0 ? 'Endless best ' + fmt(endlessBest) : ''].filter(Boolean).join(' · ');
   }
 
   // ---------- input ----------
@@ -2159,10 +2201,7 @@
   });
 
   $('endless').addEventListener('click', () => {
-    initAudio();
-    sfx.pop();
-    hide(startEl); hide(settingsEl); hide(aboutEl);
-    show(endlessInfoEl);
+    startGame(false, true);
   });
   $('endlessInfoBack').addEventListener('click', () => {
     hide(endlessInfoEl);
@@ -2189,7 +2228,7 @@
     hide(settingsEl);
     openWhatsNew('settings');
   });
-  $('play').addEventListener('click', () => startGame());
+  $('play').addEventListener('click', () => startGame(false, false));
   $('shareScore').addEventListener('click', async () => {
     const shareText = `I just reached ${fmt(score)}m in Beanbound!`;
     try {
@@ -2274,7 +2313,7 @@
   function drawSky(tm) {
     const t = skyT(dist);
     const pd = state === 'menu' ? -P.y : dist;       // parallax follows how far we've really scrolled
-    const c = skyAt(t);
+    const c = endless && loopAt(dist) > 0 ? endlessSky(dist) : skyAt(t);
     const g = ctx.createLinearGradient(0, 0, 0, vh);
     g.addColorStop(0, c[0]); g.addColorStop(1, c[1]);
     ctx.fillStyle = g;
@@ -2402,12 +2441,13 @@
     const kmin = Math.max(1, Math.ceil(-(cam + H) / step)), kmax = Math.floor(-cam / step);
     for (let k = kmin; k <= kmax; k++) {
       const m = k * 5000;
-      if (m > END_M) break;
+      if (!endless && m > END_M) break;
       if (m === GROUND_M || m === END_M) continue;
-      lines.push({ y: -k * step, label: fmt(m) + ' m', big: false });
+      const boundary = endless && m % END_M === 0;
+      lines.push({ y: -k * step, label: (boundary ? 'STRETCH ' + (m / END_M + 1) + ' · ' : '') + fmt(m) + ' m', big: boundary });
     }
     lines.push({ y: -GROUND_PX, label: 'SKY LAYER', big: true });
-    lines.push({ y: -END_PX, label: 'SPACE', big: true });
+    lines.push({ y: -END_PX, label: endless ? 'STRETCH 2 · 100,000 m' : 'SPACE', big: true });
     lines.push({ y: GY - 26, label: 'GROUND LAYER', big: true, noLine: true });
     ctx.font = "22px 'Bagel Fat One', 'Trebuchet MS', sans-serif";
     ctx.textAlign = 'left';
