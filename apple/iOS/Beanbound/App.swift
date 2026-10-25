@@ -1,6 +1,7 @@
 import UIKit
 import WebKit
 import AVFoundation
+import CoreHaptics
 
 private final class WeakMessageHandler: NSObject, WKScriptMessageHandler {
     weak var target: WKScriptMessageHandler?
@@ -24,6 +25,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
 final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     private(set) var webView: WKWebView!
+    private let environmentRumble = EnvironmentRumble()
     private let pickupFeedback = UIImpactFeedbackGenerator(style: .soft)
     private let rainFeedback = UIImpactFeedbackGenerator(style: .light)
     private let damageFeedback = UIImpactFeedbackGenerator(style: .medium)
@@ -47,6 +49,7 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         let handler = WeakMessageHandler(self)
         controller.add(handler, name: "save")
         controller.add(handler, name: "haptic")
+        controller.add(handler, name: "environment")
         controller.add(handler, name: "share")
         let saved = UserDefaults.standard.dictionary(forKey: saveKey) as? [String: String] ?? [:]
         let json = String(data: try! JSONSerialization.data(withJSONObject: saved), encoding: .utf8)!
@@ -63,6 +66,7 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
             get length() { return Object.keys(values).length; }
           };
           Object.defineProperty(window, 'localStorage', {value: storage});
+          window.beanboundEnvironment = kind => window.webkit.messageHandlers.environment.postMessage(String(kind));
           window.beanboundHaptic = kind => window.webkit.messageHandlers.haptic.postMessage({kind});
           navigator.vibrate = () => { window.beanboundHaptic('light'); return true; };
           navigator.share = async data => { window.webkit.messageHandlers.share.postMessage({text: String(data.text || '')}); };
@@ -103,6 +107,7 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         else if UIApplication.shared.applicationState == .active { foreground() }
     }
     @objc private func background() {
+        environmentRumble.stop()
         UIApplication.shared.isIdleTimerDisabled = false
         webView.evaluateJavaScript("window.beanboundNative?.background()")
     }
@@ -133,6 +138,9 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         switch message.name {
         case "save":
             if let values = message.body as? [String: String] { UserDefaults.standard.set(values, forKey: saveKey) }
+        case "environment":
+            guard UIApplication.shared.applicationState == .active, let kind = message.body as? String else { environmentRumble.stop(); return }
+            environmentRumble.update(kind)
         case "haptic":
             guard UIApplication.shared.applicationState == .active else { return }
             let kind = (message.body as? [String: String])?["kind"] ?? "light"
@@ -142,7 +150,7 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
             if kind == "dirt" || kind == "rain" {
                 guard now - lastPriorityHapticTime >= 0.6, now - lastHapticTime >= 0.22 else { return }
             }
-            if ["damage", "milestone", "gameOver"].contains(kind) { lastPriorityHapticTime = now }
+            if ["damage", "milestone", "gameOver"].contains(kind) { lastPriorityHapticTime = now; environmentRumble.duck() }
             lastHapticTime = now
             switch kind {
             case "dirt": pickupFeedback.impactOccurred(intensity: 0.2)
@@ -162,4 +170,68 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         default: break
         }
     }
+}
+
+// A quiet continuous bed underneath the existing transient gameplay feedback.
+private final class EnvironmentRumble {
+    private var engine: CHHapticEngine?
+    private var player: CHHapticAdvancedPatternPlayer?
+    private var kind = "none", playingKind = "none"
+    private var lastUpdate: TimeInterval = 0, duckUntil: TimeInterval = 0
+    private var timer: Timer?
+    func update(_ value: String) {
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+        guard ["dirt", "rain"].contains(value) else { stop(); return }
+        kind = value
+        lastUpdate = ProcessInfo.processInfo.systemUptime
+        if timer == nil {
+            timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in self?.refresh() }
+        }
+        refresh()
+    }
+    func duck() {
+        duckUntil = ProcessInfo.processInfo.systemUptime + 0.6
+        stopPlayer()
+    }
+    private func refresh() {
+        let now = ProcessInfo.processInfo.systemUptime
+        guard UIApplication.shared.applicationState == .active, now - lastUpdate < 1.2 else { stop(); return }
+        guard now >= duckUntil else { return }
+        guard player == nil || playingKind != kind else { return }
+        stopPlayer()
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+        do {
+            if engine == nil {
+                let newEngine = try CHHapticEngine()
+                newEngine.playsHapticsOnly = true
+                newEngine.stoppedHandler = { [weak self] _ in
+                    DispatchQueue.main.async { self?.stopPlayer() }
+                }
+                newEngine.resetHandler = { [weak self] in
+                    DispatchQueue.main.async { self?.stopPlayer() }
+                }
+                engine = newEngine
+            }
+            guard let engine else { return }
+            try engine.start()
+            let event = CHHapticEvent(eventType: .hapticContinuous, parameters: [
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: kind == "dirt" ? 0.08 : 0.045),
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: kind == "dirt" ? 0.05 : 0.35)
+            ], relativeTime: 0, duration: 30)
+            let newPlayer = try engine.makeAdvancedPlayer(with: CHHapticPattern(events: [event], parameters: []))
+            newPlayer.loopEnabled = true
+            newPlayer.loopEnd = 30
+            try newPlayer.start(atTime: CHHapticTimeImmediate)
+            player = newPlayer; playingKind = kind
+        } catch { stopPlayer() }
+    }
+    private func stopPlayer() {
+        try? player?.stop(atTime: CHHapticTimeImmediate)
+        player = nil; playingKind = "none"
+    }
+    func stop() {
+        kind = "none"; stopPlayer()
+        timer?.invalidate(); timer = nil
+    }
+    deinit { timer?.invalidate(); try? player?.stop(atTime: CHHapticTimeImmediate) }
 }

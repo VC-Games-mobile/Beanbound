@@ -1138,6 +1138,14 @@
   function saveSetting(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
   function buzz(ms, kind = 'light') { try { if (!haptics) return; if (window.beanboundHaptic) window.beanboundHaptic(kind); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
 
+  let hapticEnvironment = 'none', lastEnvironmentUpdate = -Infinity;
+  function setHapticEnvironment(kind) {
+    kind = haptics && state === 'play' ? kind : 'none';
+    const now = performance.now();
+    if (kind === hapticEnvironment && (kind === 'none' || now - lastEnvironmentUpdate < 500)) return;
+    hapticEnvironment = kind; lastEnvironmentUpdate = now;
+    try { if (window.beanboundEnvironment) window.beanboundEnvironment(kind); } catch (e) {}
+  }
   let lastAmbientHaptic = -Infinity;
   function environmentHaptic(kind) {
     const now = performance.now(), interval = kind === 'dirt' ? 900 : 450;
@@ -1548,6 +1556,7 @@
       if (!reducedMotion && Math.random() < dt * 22) parts.push({ x: P.x + rand(-26, 26), y: P.y + rand(-30, 10), vx: rand(-20, 20), vy: rand(-80, -20), life: 0.7, r: rand(1.5, 3), c: '#8FD8FF' });
       if (!wasShower) { sfx.rain(); floaters.push({ x: W / 2, y: P.y - 70, life: 1.1, text: sh.under ? 'Water!' : 'Rain!' }); }
     }
+    setHapticEnvironment(dist < DIRT_PX ? 'dirt' : inShower ? 'rain' : 'none');
     if (dist < DIRT_PX) environmentHaptic('dirt');
     else if (inShower && water < 100) environmentHaptic('rain');
     wasShower = inShower;
@@ -1986,6 +1995,7 @@
       speedTaps = [];
       startSpeedBoost();
     }
+    if (!haptics) setHapticEnvironment('none');
     saveSetting('beanbound2-haptics', haptics ? 'on' : 'off');
     updateSettingsUI();
     if (haptics) buzz(unlocked ? 60 : 18);
@@ -2103,6 +2113,7 @@
   }
 
   function toMenu() {
+    setHapticEnvironment('none');
     endless = false;
     hide(pauseEl); hide(overEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
     hudEl.classList.add('hidden'); hintEl.classList.add('hidden');
@@ -2121,6 +2132,7 @@
   }
 
   function pauseGame() {
+    setHapticEnvironment('none');
     if (state !== 'play') return;
     state = 'paused';
     ptr = null; keys.l = keys.r = false;
@@ -2301,6 +2313,7 @@
 
   const TITLES = { rock: 'Hit a rock', crow: 'Pecked by a crow', balloon: 'Bumped a balloon', cloud: 'Bonked a cloud', storm: 'Zapped by lightning', wilt: 'You wilted', win: 'You reached space!' };
   function die(kind) {
+    setHapticEnvironment('none');
     if (state !== 'play') return;
     won = kind === 'win';
     state = won ? 'victory' : 'over';
@@ -3406,6 +3419,7 @@
   // main loop
   let last = performance.now();
   function frame(now) {
+    if (state !== 'play' || !haptics) setHapticEnvironment('none');
     const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); // never negative, even on the very first frame
     last = now;
     const tm = now / 1000;
