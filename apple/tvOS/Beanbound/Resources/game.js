@@ -305,7 +305,7 @@
     reducedMotion = rm === null ? osReducedMotion() : rm === 'on';
   } catch (e) { reducedMotion = osReducedMotion(); }
   function saveSetting(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
-  function buzz(ms) { try { if (haptics && navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+  function buzz(ms, kind = 'light') { try { if (!haptics) return; if (window.beanboundHaptic) window.beanboundHaptic(kind); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
 
   // TV mode: on by itself in a tvOS browser, or with ?tv=1 / ?tv=0, or from Settings (remembered).
   const TV_KEY = 'beanbound2-tv';
@@ -579,7 +579,7 @@
     abilityTime = ABILITY_DURATION;
     floaters.push({ x, y: y - 28, life: 1.4, text: abilityLabel(ability) + '!' });
     burst(x, y, ability === 'dehydration' ? '#5FC9FF' : '#8BE36A', 14, 220);
-    sfx.sun(); buzz(25);
+    sfx.sun(); buzz(25, 'pickup');
     updateAbilityUI();
   }
 
@@ -615,7 +615,7 @@
       shield = false; invuln = 1.1;
       burst(P.x, P.y, '#FFD86B', 18, 230);
       floaters.push({ x: P.x, y: P.y - 30, life: 1, text: 'Blocked!' });
-      sfx.shield(); buzz(30);
+      sfx.shield(); buzz(30, 'damage');
       return;
     }
     die(kind);
@@ -661,7 +661,7 @@
       water = Math.max(water, 75);
       invuln = Math.max(invuln, 2);
       floaters.push({x: W / 2, y: P.y - 150, life: 3, text: 'Stretch ' + (endlessLoop + 1) + ': ' + endlessTheme(endlessLoop).name});
-      sfx.stage(); buzz(25);
+      sfx.stage(); buzz(25, 'milestone');
       maxM = Math.max(maxM, Math.floor(meters));
       endlessBest = Math.max(endlessBest, Math.floor(meters) + bonus);
       saveProgress();
@@ -706,7 +706,7 @@
     if (inShower) {
       water = Math.min(100, water + 46 * SPDM * dt);
       if (!reducedMotion && Math.random() < dt * 22) parts.push({ x: P.x + rand(-26, 26), y: P.y + rand(-30, 10), vx: rand(-20, 20), vy: rand(-80, -20), life: 0.7, r: rand(1.5, 3), c: '#8FD8FF' });
-      if (!wasShower) { sfx.rain(); floaters.push({ x: W / 2, y: P.y - 70, life: 1.1, text: sh.under ? 'Water!' : 'Rain!' }); }
+      if (!wasShower) { buzz(8, 'pickup'); sfx.rain(); floaters.push({ x: W / 2, y: P.y - 70, life: 1.1, text: sh.under ? 'Water!' : 'Rain!' }); }
     }
     wasShower = inShower;
 
@@ -743,7 +743,7 @@
           shield = true; shieldTime = 60; bonus += 100;
           floaters.push({ x: q.x, y: q.y, life: 1, text: '+100' });
           burst(q.x, q.y, '#FFD86B', 12, 200);
-          sfx.sun(); buzz(20);
+          sfx.sun(); buzz(20, 'pickup');
         } else if (q.kind === 'seedpack') {
           giveRandomAbility(q.x, q.y);
         } else {
@@ -752,7 +752,7 @@
           P.sq = 1;
           burst(q.x, q.y, '#5FC9FF', 7, 170);
           if (comboN >= 3) floaters.push({ x: q.x, y: q.y - 8, life: 0.8, text: 'x' + comboN });
-          sfx.drop(comboN);
+          sfx.drop(comboN); buzz(8, 'pickup');
         }
       }
     }
@@ -761,7 +761,7 @@
     while (dist >= nextMile && (endless || nextMile < END_PX)) {
       const m = Math.round(nextMile / UNIT); nextMile += M(5000); bonus += 250;
       floaters.push({ x: W / 2, y: P.y - 100, life: 1.5, text: fmt(m) + ' m' });
-      sfx.mile(); buzz(15);
+      sfx.mile(); buzz(15, 'milestone');
     }
 
     // new layer of the world
@@ -1310,7 +1310,7 @@
     burst(P.x, P.y, ev.leaf === 'rainbow' ? '#FFD86B' : ev.leaf, 14, 260);
     floaters.push({ x: W / 2, y: P.y - 236, life: 2.4, text: 'Evolved!' });
     floaters.push({ x: W / 2, y: P.y - 200, life: 2.4, text: ev.name });
-    sfx.evolve(); buzz(40);
+    sfx.evolve(); buzz(40, 'milestone');
     saveProgress();
   }
 
@@ -1465,7 +1465,7 @@
     releaseWakeLock();
     if (won) {
       // the big milestone is a celebration, not a normal game-over screen
-      sfx.win(); buzz(120);
+      sfx.win(); buzz(120, 'milestone');
       curEvo = 0;
       P.x = W / 2; P.y = 0; P.vx = 0; P.ang = 0; P.sq = 0; P.open = 1;
       dist = END_PX;
@@ -1473,7 +1473,7 @@
       maxM = Math.max(maxM, END_M);
       for (const c of ['#FFD86B', '#FF9EC4', '#8FD8FF', '#B6F2A0', '#FFFFFF']) burst(W / 2, -END_PX, c, 22, 420);
     } else {
-      sfx.die(); buzz(70);
+      sfx.die(); buzz(70, 'gameOver');
       burst(P.x, P.y, '#5FD38D', 16, 250);
       burst(P.x, P.y, '#B6F2A0', 10, 200);
     }

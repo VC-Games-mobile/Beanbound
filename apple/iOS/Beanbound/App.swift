@@ -24,6 +24,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
 final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     private(set) var webView: WKWebView!
+    private let pickupFeedback = UIImpactFeedbackGenerator(style: .soft)
+    private let damageFeedback = UIImpactFeedbackGenerator(style: .medium)
+    private let gameOverFeedback = UIImpactFeedbackGenerator(style: .heavy)
+    private let milestoneFeedback = UINotificationFeedbackGenerator()
+    private var lastHapticTime: TimeInterval = 0
     private let saveKey = "Beanbound.webSave"
     override var prefersStatusBarHidden: Bool { true }
     override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge { [.bottom] }
@@ -56,7 +61,8 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
             get length() { return Object.keys(values).length; }
           };
           Object.defineProperty(window, 'localStorage', {value: storage});
-          navigator.vibrate = () => { window.webkit.messageHandlers.haptic.postMessage({}); return true; };
+          window.beanboundHaptic = kind => window.webkit.messageHandlers.haptic.postMessage({kind});
+          navigator.vibrate = () => { window.beanboundHaptic('light'); return true; };
           navigator.share = async data => { window.webkit.messageHandlers.share.postMessage({text: String(data.text || '')}); };
         })();
         """
@@ -126,7 +132,19 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         case "save":
             if let values = message.body as? [String: String] { UserDefaults.standard.set(values, forKey: saveKey) }
         case "haptic":
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            guard UIApplication.shared.applicationState == .active else { return }
+            let kind = (message.body as? [String: String])?["kind"] ?? "light"
+            let now = ProcessInfo.processInfo.systemUptime
+            // Clustered drops produce one gentle tap, never a continuous vibration.
+            if kind == "pickup" && now - lastHapticTime < 0.12 { return }
+            lastHapticTime = now
+            switch kind {
+            case "pickup": pickupFeedback.impactOccurred(intensity: 0.35)
+            case "damage": damageFeedback.impactOccurred(intensity: 0.8)
+            case "milestone": milestoneFeedback.notificationOccurred(.success)
+            case "gameOver": gameOverFeedback.impactOccurred(intensity: 1)
+            default: pickupFeedback.impactOccurred(intensity: 0.45)
+            }
         case "share":
             guard presentedViewController == nil, let values = message.body as? [String: String], let text = values["text"] else { return }
             let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
