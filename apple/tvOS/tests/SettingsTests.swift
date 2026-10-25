@@ -32,6 +32,7 @@ func frames(_ from:Int,_ to:Int){for i in from...to {run("commands=[];nativeFram
 frames(0,300)
 run("nodes.whatsNewDismiss.click();nodes.settingsBtn.click()")
 check("nativeMenu().buttons.some(b=>b.id==='musicVolDown') && nativeMenu().buttons.some(b=>b.id==='reducedMotionToggle')", "new settings accessible with remote")
+check("nativeMenu().buttons[0].id==='settingsBack'", "Back is the first Settings control")
 run("nodes.musicVolDown.click();nodes.sfxVolDown.click()")
 check("endlessTest.settings().musicVol===0.9 && endlessTest.settings().sfxVol===0.9", "independent volume controls")
 run("for(let i=0;i<15;i++)nodes.musicVolDown.click()")

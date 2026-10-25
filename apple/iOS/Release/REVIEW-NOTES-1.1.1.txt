@@ -1,4 +1,4 @@
-Beanbound 1.1.1 (10) imports the upstream settings update. New independent music and sound-effect volume sliders, reduced motion, gameplay hints, auto-pause preferences, and reset-settings controls. Settings persist locally.
+Beanbound 1.1.1 (11) imports the upstream settings update. New independent music and sound-effect volume sliders, reduced motion, gameplay hints, auto-pause preferences, and reset-settings controls. Settings persist locally.
 
 For App Review: the optional speed-boost Easter egg is activated by tapping Haptic feedback ten times within four seconds in Settings. It doubles simulation speed for five minutes and restores the original haptics preference after activation. The pause-menu Restart button cancels it. No purchase or login is required. The Moon feature remains disabled.
 
@@ -9,3 +9,5 @@ Build 8 adds event-specific native iPhone haptics: gentle rate-limited pickups, 
 Build 9 adds subtle environmental haptics: soft soil bumps at most every 900 ms, light rain taps at most every 450 ms while water is being restored, and a native priority delay following hits, milestones, or game over. The same Haptic feedback switch controls these effects.
 
 Build 10 adds an optional, very low-intensity continuous Core Haptics texture while growing in dirt or rain, beneath the existing transient cues. It stops on pause, menu, game over, background, disabled haptics, or loss of gameplay heartbeat; priority cues temporarily duck it. Unsupported hardware produces no rumble.
+
+Build 11 moves Back to the first Settings control and increases the continuous environmental haptics following physical-device feedback that the original levels were too faint. Dirt intensity is now 0.24 and rain 0.18; physical feel remains owner-validated.

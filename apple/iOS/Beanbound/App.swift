@@ -215,15 +215,18 @@ private final class EnvironmentRumble {
             guard let engine else { return }
             try engine.start()
             let event = CHHapticEvent(eventType: .hapticContinuous, parameters: [
-                CHHapticEventParameter(parameterID: .hapticIntensity, value: kind == "dirt" ? 0.08 : 0.045),
-                CHHapticEventParameter(parameterID: .hapticSharpness, value: kind == "dirt" ? 0.05 : 0.35)
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: kind == "dirt" ? 0.24 : 0.18),
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: kind == "dirt" ? 0.15 : 0.4)
             ], relativeTime: 0, duration: 30)
             let newPlayer = try engine.makeAdvancedPlayer(with: CHHapticPattern(events: [event], parameters: []))
             newPlayer.loopEnabled = true
             newPlayer.loopEnd = 30
             try newPlayer.start(atTime: CHHapticTimeImmediate)
             player = newPlayer; playingKind = kind
-        } catch { stopPlayer() }
+        } catch {
+            NSLog("Beanbound continuous haptics could not start: %@", error.localizedDescription)
+            stopPlayer()
+        }
     }
     private func stopPlayer() {
         try? player?.stop(atTime: CHHapticTimeImmediate)

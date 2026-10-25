@@ -48,3 +48,5 @@ October 25: imported upstream GitHub d737838 into all native apps as 1.1.1 (7). 
 October 25: build 9 adds distinct, throttled dirt and replenishing-rain haptics, with priority for gameplay events and the existing opt-in switch. Engine and iPhone/iPad integration tests passed; signed iOS/tvOS builds succeeded. Installed on Luke’s iPhone. Not uploaded/submitted to App Store Connect.
 
 October 25: build 10 adds the requested very subtle continuous dirt/rain rumble beneath existing feedback, with immediate pause/off/background stops and heartbeat timeout. Engine routing and iPhone/iPad tests passed; signed iOS archive succeeded. Installed on Luke’s iPhone. Physical feel awaits owner check. Not submitted to Apple.
+
+October 25: build 11 moves Back to the first Settings control and raises dirt/rain continuous intensity after the owner reported no feel during movement. Added engine startup error logs; engine/UI integration tests passed and signed iOS archive succeeded. Installed on Luke’s iPhone. No App Store submission.
