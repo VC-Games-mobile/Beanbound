@@ -25,10 +25,12 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     private(set) var webView: WKWebView!
     private let pickupFeedback = UIImpactFeedbackGenerator(style: .soft)
+    private let rainFeedback = UIImpactFeedbackGenerator(style: .light)
     private let damageFeedback = UIImpactFeedbackGenerator(style: .medium)
     private let gameOverFeedback = UIImpactFeedbackGenerator(style: .heavy)
     private let milestoneFeedback = UINotificationFeedbackGenerator()
-    private var lastHapticTime: TimeInterval = 0
+    private var lastHapticTime: TimeInterval = -.infinity
+    private var lastPriorityHapticTime: TimeInterval = -.infinity
     private let saveKey = "Beanbound.webSave"
     override var prefersStatusBarHidden: Bool { true }
     override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge { [.bottom] }
@@ -137,8 +139,14 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
             let now = ProcessInfo.processInfo.systemUptime
             // Clustered drops produce one gentle tap, never a continuous vibration.
             if kind == "pickup" && now - lastHapticTime < 0.12 { return }
+            if kind == "dirt" || kind == "rain" {
+                guard now - lastPriorityHapticTime >= 0.6, now - lastHapticTime >= 0.22 else { return }
+            }
+            if ["damage", "milestone", "gameOver"].contains(kind) { lastPriorityHapticTime = now }
             lastHapticTime = now
             switch kind {
+            case "dirt": pickupFeedback.impactOccurred(intensity: 0.2)
+            case "rain": rainFeedback.impactOccurred(intensity: 0.25)
             case "pickup": pickupFeedback.impactOccurred(intensity: 0.35)
             case "damage": damageFeedback.impactOccurred(intensity: 0.8)
             case "milestone": milestoneFeedback.notificationOccurred(.success)

@@ -19,7 +19,7 @@ if file == "game.js" {
     step:stepPlay,
     rows() {spawnAhead();return {hazards:obst.length,showers:showers.length,spawnDist,dist};},
     data() {return {endless,endlessLoop,water,best,endlessBest,score,state,theme:endlessLoop?endlessTheme(endlessLoop).name:'Original',colors:endlessLoop?endlessSky(dist):skyAt(skyT(dist))};},
-    finish() {die('wilt');}, feedback: buzz, start: startGame, settings: () => ({musicVol,sfxVol,reducedMotion,boost:speedBoostActive(),haptics})
+    finish() {die('wilt');}, rain() {showers=[{y0:P.y-2000,y1:P.y+2000,under:false}];water=30;}, feedback: buzz, start: startGame, settings: () => ({musicVol,sfxVol,reducedMotion,boost:speedBoostActive(),haptics})
   };
   globalThis.beanbound = {
 """)
@@ -46,5 +46,15 @@ run("if(!endlessTest.settings().haptics)nodes.hapticToggle.click();var feedback=
 check("feedback.includes('milestone') && feedback.includes('gameOver')", "milestone and game-over route distinct feedback events")
 run("nodes.hapticToggle.click();feedback=[];endlessTest.feedback(8,'pickup')")
 check("feedback.length===0", "disabled haptics suppress native feedback")
+run("nodes.hapticToggle.click();endlessTest.start(true,true);endlessTest.jump(100);feedback=[];nativeNow+=1000;endlessTest.step(0.016)")
+check("feedback.filter(k=>k==='dirt').length===1", "dirt gets its own soft cue")
+run("for(let i=0;i<10;i++)endlessTest.step(0.016)")
+check("feedback.filter(k=>k==='dirt').length===1", "dirt does not vibrate every frame or twice during speed boost")
+run("endlessTest.jump(40000);endlessTest.rain();feedback=[];nativeNow+=500;endlessTest.step(0.016)")
+check("feedback.includes('rain') && !feedback.includes('dirt')", "rain has a distinct cue while restoring water")
+run("endlessTest.jump(40000);feedback=[];nativeNow+=1000;endlessTest.step(0.016)")
+check("!feedback.includes('rain') && !feedback.includes('dirt')", "dry sky has no environment vibration")
+run("nodes.hapticToggle.click();endlessTest.jump(100);feedback=[];nativeNow+=1000;endlessTest.step(0.016)")
+check("feedback.length===0", "environment feedback respects the off switch")
 if !errors.isEmpty {exit(1)}
 print("PASS: remote volume controls, independent levels, reduced motion, secret activation and expiry")

@@ -1158,6 +1158,14 @@
   function saveSetting(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
   function buzz(ms, kind = 'light') { try { if (!haptics) return; if (window.beanboundHaptic) window.beanboundHaptic(kind); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
 
+  let lastAmbientHaptic = -Infinity;
+  function environmentHaptic(kind) {
+    const now = performance.now(), interval = kind === 'dirt' ? 900 : 450;
+    if (now - lastAmbientHaptic < interval) return;
+    lastAmbientHaptic = now;
+    buzz(6, kind);
+  }
+
   // TV mode: on by itself in a tvOS browser, or with ?tv=1 / ?tv=0, or from Settings (remembered).
   const TV_KEY = 'beanbound2-tv';
   let tvMode = false;             // iPhone and iPad use the original touch layout
@@ -1247,6 +1255,7 @@
   function reset() {
     P = { x: W / 2, y: 30, vx: 0, ang: 0, sq: 0, open: 0 }; // the shoot starts deep in the dirt, inside its seed
     endlessLoop = 0;
+    lastAmbientHaptic = performance.now();
     tx = W / 2; dist = 0; water = 100; shield = false; shieldTime = 0; invuln = 0; bonus = 0; time = 0;
     ability = null; abilityTime = 0;
     score = 0; lastScore = -1; lastWater = -1; lastShownBest = -1; lastHmShown = -99; lastLayerShown = -1;
@@ -1557,8 +1566,10 @@
     if (inShower) {
       water = Math.min(100, water + 46 * SPDM * dt);
       if (!reducedMotion && Math.random() < dt * 22) parts.push({ x: P.x + rand(-26, 26), y: P.y + rand(-30, 10), vx: rand(-20, 20), vy: rand(-80, -20), life: 0.7, r: rand(1.5, 3), c: '#8FD8FF' });
-      if (!wasShower) { buzz(8, 'pickup'); sfx.rain(); floaters.push({ x: W / 2, y: P.y - 70, life: 1.1, text: sh.under ? 'Water!' : 'Rain!' }); }
+      if (!wasShower) { sfx.rain(); floaters.push({ x: W / 2, y: P.y - 70, life: 1.1, text: sh.under ? 'Water!' : 'Rain!' }); }
     }
+    if (dist < DIRT_PX) environmentHaptic('dirt');
+    else if (inShower && water < 100) environmentHaptic('rain');
     wasShower = inShower;
 
     // world
