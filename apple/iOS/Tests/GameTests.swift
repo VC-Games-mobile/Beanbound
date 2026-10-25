@@ -81,4 +81,24 @@ final class GameTests: XCTestCase {
         _ = try await evaluate("document.getElementById('overMenu').click()", in: game)
     }
 
+    func testNewSettingsPersistAcrossReload() async throws {
+        let app = UIApplication.shared.delegate as! AppDelegate
+        let game = GameViewController()
+        app.window!.rootViewController = game
+        try await ready(game)
+        _ = try await evaluate("document.getElementById('musicVol').value='25';document.getElementById('musicVol').dispatchEvent(new Event('input'));document.getElementById('sfxVol').value='70';document.getElementById('sfxVol').dispatchEvent(new Event('input'));if(document.getElementById('reducedMotionToggle').getAttribute('aria-checked')!=='true')document.getElementById('reducedMotionToggle').click()", in: game)
+        let labels = try await evaluate("document.getElementById('musicVolVal').textContent==='25%' && document.getElementById('sfxVolVal').textContent==='70%'", in: game) as? Bool
+        XCTAssertEqual(labels, true)
+        _ = try await evaluate("for(let i=0;i<10;i++)document.getElementById('hapticToggle').click()", in: game)
+        try await Task.sleep(nanoseconds: 200_000_000)
+        let toast = try await evaluate("document.body.textContent.includes('2x speed for 5 minutes!')", in: game) as? Bool
+        XCTAssertEqual(toast, true)
+        let next = GameViewController()
+        app.window!.rootViewController = next
+        try await ready(next)
+        let settings = try await evaluate("document.getElementById('musicVol').value==='25' && document.getElementById('sfxVol').value==='70' && document.getElementById('reducedMotionToggle').getAttribute('aria-checked')==='true'", in: next) as? Bool
+        XCTAssertEqual(settings, true, "Independent volume and motion preferences survive native reload")
+        _ = try await evaluate("document.getElementById('musicVol').value='100';document.getElementById('musicVol').dispatchEvent(new Event('input'));document.getElementById('sfxVol').value='100';document.getElementById('sfxVol').dispatchEvent(new Event('input'));document.getElementById('reducedMotionToggle').click()", in: next)
+    }
+
 }

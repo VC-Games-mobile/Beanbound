@@ -2,7 +2,7 @@
 from pathlib import Path
 root=Path(__file__).resolve().parent
 html=(root.parent/'index.html').read_text()
-html=html.replace('1.0.8', '1.1.0').replace('Beanbound TV', 'Beanbound')
+html=html.replace('1.0.8', '1.1.1').replace('Beanbound TV', 'Beanbound')
 html=html.replace("sign(leftX, '#566B9C', 'GO TO THE', 'MOON');", "sign(leftX, '#566B9C', 'PLAY AGAIN', 'NEW CLIMB');")
 html=html.replace('      showMoonComingSoon();\n      return;', '      startGame();\n      return;')
 html=html.replace("'Congratulations, you made it!', vw / 2", "'You reached space!', vw / 2")

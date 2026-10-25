@@ -1,0 +1,5 @@
+Beanbound 1.1.1 (7) imports the upstream settings update. New independent music and sound-effect volume sliders, reduced motion, gameplay hints, auto-pause preferences, and reset-settings controls. Settings persist locally.
+
+For App Review: the optional speed-boost Easter egg is activated by tapping Haptic feedback ten times within four seconds in Settings. It doubles simulation speed for five minutes and restores the original haptics preference after activation. The pause-menu Restart button cancels it. No purchase or login is required. The Moon feature remains disabled.
+
+No accounts, ads, purchases, external services, or in-app analytics SDKs. All game assets are bundled locally and the game works offline. No regional feature differences.

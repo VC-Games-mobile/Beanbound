@@ -23,7 +23,7 @@ class Element {
  constructor(n={tag:'div',attrs:{},text:'',children:[]},p=null){
   this.tagName=n.tag.toUpperCase();this.attrs=n.attrs;this.id=n.attrs.id||'';this.parent=p;this.ownText=n.text;this.children=[];
   this.classList=new Classes(n.attrs.class||'');this.style={setProperty:()=>{}};this.events={};this.hidden='hidden' in n.attrs;this.disabled=false;
-  this.scrollTop=0;this.clientHeight=1080;this.scrollHeight=1080;this.width=320;this.height=320;
+  this.value=n.attrs.value||'';this.scrollTop=0;this.clientHeight=1080;this.scrollHeight=1080;this.width=320;this.height=320;
   if(this.id)nodes[this.id]=this;this.children=n.children.map(x=>new Element(x,this));
  }
  get textContent(){return this.ownText+this.children.map(c=>c.textContent).join(' ')}
@@ -32,6 +32,8 @@ class Element {
  set className(v){this.classList=new Classes(v)}
  addEventListener(k,f){(this.events[k] ||= []).push(f)}
  setAttribute(k,v){this.attrs[k]=v} getAttribute(k){return this.attrs[k]||null}
+ remove(){if(this.parent)this.parent.children=this.parent.children.filter(c=>c!==this)}
+ dispatchEvent(e){(this.events[e.type]||[]).forEach(f=>f(e))}
  appendChild(c){c.parent=this;this.children.push(c);return c}
  contains(c){return c===this||this.children.some(x=>x.contains(c))}
  closest(sel){return (sel==='.overlay'&&this.classList.contains('overlay'))?this:this.parent?.closest(sel)}
@@ -64,7 +66,27 @@ function nativeKey(key,down){dispatch(down?'keydown':'keyup',{key,code:key,repea
 function nativeMenu(){let s=beanbound.snapshot(),n=nodes[s.overlay];return {snapshot:s,
  title:n?(n.children.flatMap(c=>c.children).find(c=>c.tagName==='H2')?.textContent||({start:'Beanbound',settings:'Settings & More',evos:'Evolutions',how:'How to play',pause:'Paused',over:nodes.overTitle.textContent})[s.overlay]||'Beanbound'):'',
  text:n?n.textContent.replace(/\s+/g,' ').trim():'',
- buttons:n?n.querySelectorAll('button').filter(b=>b.visible()&&!['tvToggle','hapticToggle','shareScore'].includes(b.id)).map(b=>({id:b.id,title:(b.textContent.trim()||b.attrs['aria-label']||b.id)+(b.attrs.role==='switch'?': '+(b.attrs['aria-checked']==='true'?'on':'off'): '')})):[]}}
+ buttons:n?n.querySelectorAll('button').filter(b=>b.visible()&&!['tvToggle','shareScore'].includes(b.id)).map(b=>({id:b.id,title:(b.textContent.trim()||b.attrs['aria-label']||b.id)+(b.attrs.role==='switch'?': '+(b.attrs['aria-checked']==='true'?'on':'off'): '')})):[]}}
+const originalNativeMenu = nativeMenu;
+nativeMenu = function() {
+ const menu=originalNativeMenu();
+ if(menu.snapshot.overlay==='settings') {
+  for(const [id,label] of [['musicVol','Music volume'],['sfxVol','Sound effects volume']]) {
+   for(const [suffix,delta] of [['Down',-10],['Up',10]]) {
+    const buttonID=id+suffix;
+    if(!nodes[buttonID]) {
+     const button=new Element({tag:'button',attrs:{id:buttonID},text:'',children:[]});
+     button.addEventListener('click',()=>{
+      const slider=nodes[id];slider.value=String(Math.max(0,Math.min(100,Number(slider.value)+delta)));
+      slider.dispatchEvent({type:'input'});slider.dispatchEvent({type:'change'});
+     });
+    }
+    menu.buttons.push({id:buttonID,title:label+' '+nodes[id].value+'% — '+(delta<0?'Decrease':'Increase')});
+   }
+  }
+ }
+ return menu;
+};
 class AudioParam {
  constructor(value=1){this.value=value;this.events=[]}
  setValueAtTime(v,t){this.value=v;this.events.push([t,v,'set'])}

@@ -42,3 +42,5 @@ October 20 at 3:48 PM America/Detroit: submitted iOS 1.1.0 (6), adding functiona
 Review URL: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/259c00ad-b20c-4244-9b41-30876b367a82
 
 October 21: App Store Connect confirms 1.1.0 (6) is Ready for Distribution. Owner requested changing “colours” to “colors” in What’s New. Published release notes are disabled in App Store Connect, so no live text was changed. Corrected the saved WHATS-NEW-1.1.0.txt copy for future reuse; original submitted text remains in the submission evidence.
+
+October 25: imported upstream GitHub d737838 into all native apps as 1.1.1 (7). Separate volume settings, reduced motion, hints/auto-pause options, reset settings, and speed-boost Easter egg. Runtime/Endless/settings engine tests and iPhone/iPad WKWebView tests passed. Signed iOS archive and signed tvOS build succeeded. No physical-device installation, upload, or App Store submission performed. What’s New draft contains only active in-game changelog entries.

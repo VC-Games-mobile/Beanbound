@@ -2,9 +2,9 @@
 (() => {
   'use strict';
 
-  // ---------- setup ----------
+  // setup
   const cv = document.getElementById('c');
-  let ctx = cv.getContext('2d');       // (swapped briefly to draw the evolution previews)
+  let ctx = cv.getContext('2d'); // (swapped briefly to draw the evolution previews)
   const $ = id => document.getElementById(id);
   const splashEl = $('developerSplash');
   const hudEl = $('hud'), scoreEl = $('score'), hudBest = $('hudBest'), muteBtn = $('mute'), hintEl = $('hint');
@@ -13,15 +13,18 @@
   const victoryRoomEl = $('victoryRoom'), moonSceneEl = $('moonScene');
   const whatsNewEl = $('whatsNew');
   const hapticToggle = $('hapticToggle'), soundToggle = $('soundToggle'), tvToggle = $('tvToggle');
+  const musicVolEl = $('musicVol'), sfxVolEl = $('sfxVol'), musicVolVal = $('musicVolVal'), sfxVolVal = $('sfxVolVal');
+  const reducedMotionToggle = $('reducedMotionToggle');
 
-  // ---------- version / what's new ----------
-  // Change these two values when releasing an update. Keep the changelog text here
-  // so it is quick to edit without touching the update-board logic.
-  const CURRENT_VERSION = '1.0.8';
+  // version / what's new
+  // change these two values when releasing an update. Keep the changelog text here
+  // so it is quick to edit without touching the update-board logic
+  const CURRENT_VERSION = '1.1.1';
   const CHANGELOG = [
-    'Endless Mode is here! Grow beyond 100,000 metres.',
-    'Every 100,000 metres changes the space colours and hazard mix.',
-    'Endless best scores are saved separately from normal Play.'
+    'New settings are here! Open Settings to customise your game.',
+    'Separate volume sliders for music and sound effects.',
+    'Reduced motion option turns off screen shake, particles, and flashing effects.',
+    'Fun fact: the haptic feedback switch is more fun to tap than it looks. Try it a few times.'
   ];
   const SAVED_VERSION_KEY = 'beanbound2-version';
   const SAVED_CHANGELOG_KEY = 'beanbound2-changelog';
@@ -50,14 +53,14 @@
     const savedChangelog = getSavedChangelog();
     const currentChangelog = getChangelogSignature();
 
-    // Brand-new launch: silently save the current version/changelog and go straight to the menu.
+    // brand-new launch: save the current version/changelog and go straight to the menu
     if (!savedVersion) {
       saveCurrentVersion();
       return false;
     }
 
-    // Existing players from the older version system may not have a saved changelog yet.
-    // Treat that as an update so changing CHANGELOG actually triggers the board.
+    // existing players from the older version system may not have a saved changelog yet
+    // treat that as an update so changing CHANGELOG triggers the board
     if (savedChangelog === null || savedVersion !== CURRENT_VERSION || savedChangelog !== currentChangelog) {
       openWhatsNew();
       return true;
@@ -106,22 +109,22 @@
     startMusic();
   }
 
-  let W = 360;                   // world width: 360 in portrait, wider on a phone held sideways
-  let H = 640;                   // world height (depends on screen)
+  let W = 360; // world width: 360 in portrait, wider on a phone held sideways
+  let H = 640; // world height (depends on screen)
   let scale = 1, offX = 0, dpr = 1, vw = 360, vh = 640;
-  let viewL = -40, viewR = 400;      // left/right edges of what's visible, in world units
-  let TIPF = 0.62, SPDM = 1;         // where the tip sits on screen; speed factor (slower when the screen is short)
+  let viewL = -40, viewR = 400; // left/right edges of what's visible, in world units
+  let TIPF = 0.62, SPDM = 1; // where the tip sits on screen; speed factor (slower when the screen is short)
 
   const INK = '#12302C';
-  const RAD = 16;                // bean visual radius
-  const HIT = 12;                // bean hit radius (a little forgiving)
+  const RAD = 16; // bean visual radius
+  const HIT = 12; // bean hit radius (a little forgiving)
 
-  // The world, bottom to top: dirt (rocks) -> ground (birds) -> sky (clouds and stuff) -> space (the end)
-  const UNIT = 1.5;                                  // world px per meter
+  // the world, bottom to top: dirt (rocks) -> ground (birds) -> sky (clouds and stuff) -> space (the end)
+  const UNIT = 1.5; // world px per meter
   const M = m => m * UNIT;
   const DIRT_M = 3000, GROUND_M = 15000, END_M = 100000;
   const DIRT_PX = M(DIRT_M), GROUND_PX = M(GROUND_M), END_PX = M(END_M);
-  const GY = -DIRT_PX;                               // world y of the grass line, the surface
+  const GY = -DIRT_PX; // world y of the grass line, the surface
   const LAYERS = [{ name: 'Dirt', m: 0 }, { name: 'Ground', m: DIRT_M }, { name: 'Sky', m: GROUND_M }, { name: 'Space', m: END_M }];
   let endless = false, endlessLoop = 0;
   const ENDLESS_THEMES = [
@@ -142,7 +145,7 @@
   }
   const fmt = n => Math.round(n).toLocaleString('en-US');
   function hash(a, b) { const v = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return v - Math.floor(v); }
-  function skyT(d) {                                 // how far through the sky colors we are
+  function skyT(d) { // how far through the sky colors we are
     if (endless && d >= END_PX) return 1;
     if (d <= DIRT_PX) return 0;
     if (d <= GROUND_PX) return 0.3 * (d - DIRT_PX) / (GROUND_PX - DIRT_PX);
@@ -155,7 +158,7 @@
   const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
   const mix = (a, b, k) => 'rgb(' + a.map((v, i) => Math.round(v + (b[i] - v) * k)).join(',') + ')';
 
-  // The climb: forest floor -> golden dawn -> morning sky -> dusk -> moonlit night
+  // the climb: forest floor -> golden dawn -> morning sky -> dusk -> moonlit night
   const SKY = [
     { t: 0,    top: hex('#3C8C7C'), bot: hex('#143D3A') },
     { t: 0.3,  top: hex('#F7C77E'), bot: hex('#E98F6F') },
@@ -183,11 +186,11 @@
     cv.width = Math.round(vw * dpr);
     cv.height = Math.round(vh * dpr);
     const oldW = W;
-    const land = vw > vh * 1.15;      // always use landscape layout whenever the viewport is wider than it is tall
+    const land = vw > vh * 1.15; // always use landscape layout when the viewport is wider than it is tall
     if (land) {
       scale = vh / 460;
       W = Math.round(vw / scale);
-      TIPF = 0.72; SPDM = 0.75;                    // less look-ahead, so ease the pace to match
+      TIPF = 0.72; SPDM = 0.75; // less look-ahead, so ease the pace to match
     } else {
       scale = Math.min(vw / 360, vh / 560);
       W = 360;
@@ -202,7 +205,7 @@
     else { if (W !== oldW) relayout(oldW); cam = P.y - H * TIPF; }
   }
 
-  // Keep checking the viewport so PC window resizing and device rotation are detected reliably.
+  // keep checking the viewport so PC window resizing and device rotation are detected
   let lastVW = window.innerWidth, lastVH = window.innerHeight;
   function checkViewport() {
     const curVW = window.innerWidth, curVH = window.innerHeight;
@@ -216,7 +219,7 @@
   if (window.visualViewport) window.visualViewport.addEventListener('resize', checkViewport);
   setInterval(checkViewport, 100);
 
-  // Rotating the phone mid-run: recentre the plant and keep everything reachable
+  // rotating the phone mid-run: recentre the plant and keep everything reachable
   function relayout(oldW) {
     const dx = (W - oldW) / 2;
     P.x = clamp(P.x + dx, 16, W - 16); tx = clamp(tx + dx, 16, W - 16);
@@ -236,16 +239,16 @@
     lastGapX = clamp(lastGapX + dx, 60, W - 60);
   }
 
-  // ---------- audio ----------
+  // audio
   let AC = null, muted = false;
   function initAudio() {
     try {
       if (!AC) {
         AC = new (window.AudioContext || window.webkitAudioContext)();
-        // On a wrapped WebView (game apps typically allow autoplay) this
+        // on a wrapped WebView (game apps typically allow autoplay) this
         // flips to 'running' on its own; on a strict browser it only does
-        // so once the tap-to-start fallback below runs. Either way, hide
-        // the hint the moment it actually happens.
+        // so once the tap-to-start fallback below runs. either way, hide
+        // the hint the moment it happens
         AC.addEventListener('statechange', () => {
           if (AC.state === 'running') { const h = $('musicHint'); if (h) h.hidden = true; }
         });
@@ -254,14 +257,14 @@
     } catch (e) {}
   }
   function tone(f1, f2, dur, type, vol) {
-    if (!AC || muted) return;
+    if (!AC || muted || sfxVol <= 0) return;
     try {
       const t = AC.currentTime;
       const o = AC.createOscillator(), g = AC.createGain();
       o.type = type || 'sine';
       o.frequency.setValueAtTime(f1, t);
       o.frequency.exponentialRampToValueAtTime(Math.max(f2, 30), t + dur);
-      g.gain.setValueAtTime(vol || 0.08, t);
+      g.gain.setValueAtTime(Math.max(0.0002, (vol || 0.08) * sfxVol), t);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       o.connect(g); g.connect(AC.destination);
       o.start(t); o.stop(t + dur + 0.03);
@@ -288,10 +291,19 @@
   let haptics = true;
   let gameplayHintsSetting = true;
   let autoPauseSetting = true;
+  let musicVol = 1, sfxVol = 1, reducedMotion = false;
   try { haptics = localStorage.getItem('beanbound2-haptics') === 'on'; } catch (e) {}
   try { muted = localStorage.getItem('beanbound2-muted') === 'on'; } catch (e) {}
   try { gameplayHintsSetting = localStorage.getItem('beanbound2-hints') !== 'off'; } catch (e) {}
   try { autoPauseSetting = localStorage.getItem('beanbound2-autopause') !== 'off'; } catch (e) {}
+  function osReducedMotion() { try { return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
+  function loadVol(key) { try { const v = parseFloat(localStorage.getItem(key)); return isFinite(v) ? Math.min(1, Math.max(0, v)) : 1; } catch (e) { return 1; } }
+  musicVol = loadVol('beanbound2-musicvol');
+  sfxVol = loadVol('beanbound2-sfxvol');
+  try {
+    const rm = localStorage.getItem('beanbound2-reducedmotion');
+    reducedMotion = rm === null ? osReducedMotion() : rm === 'on';
+  } catch (e) { reducedMotion = osReducedMotion(); }
   function saveSetting(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
   function buzz(ms) { try { if (haptics && navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
 
@@ -320,11 +332,11 @@
   let victoryX = 0, victoryDone = false;
   const VICTORY_SPEED = 210;
 
-  // How grown the plant looks: features unlock with height (in meters)
+  // how grown the plant looks: features unlock with height (in meters)
   const STAGES = [{ m: 0, name: 'Seedling' }, { m: 1200, name: 'Vining!' }, { m: 9000, name: 'Flowering!' }, { m: 30000, name: 'Bean pods!' }];
   const FLOWER_COLS = ['#FFFFFF', '#FF9EC4', '#C6A8FF'];
 
-  // The evolutions, first to last. Reaching a height unlocks that form for good.
+  // the evolutions, first to last. Reaching a height unlocks that form for good.
   const E = o => Object.assign({ leaf: '#5FD38D', vein: '#2FA35F', bud: ['#E4FFB8', '#A6EE8F'], ls: 1, shape: 'oval', crown: 'none', glow: null, fx: null }, o);
   const EVOS = [
     E({ name: 'Sprout', m: 0, layer: 'Dirt', ls: 0.9, desc: 'A tiny two-leaf bud, still folded up in the soil.' }),
@@ -342,12 +354,12 @@
   const keys = { l: false, r: false };
   let endlessBest = 0;
   try { endlessBest = parseInt(localStorage.getItem('beanbound2-endless-best') || '0', 10) || 0; } catch (e) {}
-  let best = 0, maxM = 0;      // best score, and the furthest height ever reached (unlocks evolutions)
+  let best = 0, maxM = 0; // best score, and the furthest height ever reached (unlocks evolutions)
   try { best = parseInt(localStorage.getItem('beanbound2-best') || '0', 10) || 0; } catch (e) {}
   try { maxM = parseInt(localStorage.getItem('beanbound2-maxm') || '0', 10) || 0; } catch (e) {}
 
-  // Progress is kept in this browser right away, and also in the viewer's private record in the
-  // artifact's database when that's available, so it survives across sessions.
+  // progress is kept in this browser right away, and also in the viewer's private record in the
+  // artifact's database when that's available, so it survives across sessions
   let bestRef = null, saveChain = Promise.resolve();
   function setLocalProgress() {
     try { localStorage.setItem('beanbound2-best', String(best)); localStorage.setItem('beanbound2-maxm', String(maxM)); localStorage.setItem('beanbound2-endless-best', String(endlessBest)); } catch (e) {}
@@ -355,7 +367,7 @@
   function saveProgress() {
     setLocalProgress();
     if (!bestRef) return;
-    saveChain = saveChain.then(() => bestRef.set({ best, maxM })).catch(() => {});      // one write at a time
+    saveChain = saveChain.then(() => bestRef.set({ best, maxM })).catch(() => {}); // one write at a time
   }
   async function initSavedBest() {
     try {
@@ -374,15 +386,15 @@
       const changedHere = newBest !== best || newM !== maxM;
       best = newBest; maxM = newM;
       if (changedHere) { setLocalProgress(); updateBestStart(); updateHud(true); if (!evosEl.classList.contains('hidden')) buildEvos(); }
-      if (best > savedBest || maxM > savedM) saveProgress();      // carry older on-device progress into the saved record
+      if (best > savedBest || maxM > savedM) saveProgress(); // carry older on-device progress into the saved record
     } catch (e) {}
   }
 
   const diff = () => Math.min(dist / M(60000), 1);
-  const maturity = () => Math.min(dist / M(50000), 1);   // 0 at the start, 1 high in the sky
+  const maturity = () => Math.min(dist / M(50000), 1); // 0 at the start, 1 high in the sky
 
   function reset() {
-    P = { x: W / 2, y: 30, vx: 0, ang: 0, sq: 0, open: 0 };   // the shoot starts deep in the dirt, inside its seed
+    P = { x: W / 2, y: 30, vx: 0, ang: 0, sq: 0, open: 0 }; // the shoot starts deep in the dirt, inside its seed
     endlessLoop = 0;
     tx = W / 2; dist = 0; water = 100; shield = false; shieldTime = 0; invuln = 0; bonus = 0; time = 0;
     ability = null; abilityTime = 0;
@@ -399,7 +411,7 @@
     updateHud(true);
   }
 
-  // ---------- level generation ----------
+  // level generation
   function pick(pool) {
     let s = 0; for (const p of pool) s += p[1];
     let r = Math.random() * s;
@@ -417,28 +429,28 @@
   }
   function spawnRow() {
     const sp = spawnDist;
-    if (!endless && sp > END_PX + 400) { spawnDist += 600; return; }          // nothing past the edge of space
+    if (!endless && sp > END_PX + 400) { spawnDist += 600; return; } // nothing past the edge of space
     if (sp >= nextShower && (endless || sp < END_PX - 3000)) {
       showers.push({ y0: -(sp + 320), y1: -sp, under: sp < DIRT_PX });
       nextShower += 5000; spawnDist += 420;
       return;
     }
     const loop = loopAt(sp), local = loop ? sp % END_PX : sp;
-    // Later stretches rotate through all three hazard families in a new order.
-    // Distance and the stalk never reset at a loop boundary.
+    // later stretches rotate through all three hazard families in a new order
+    // distance and the stalk never reset at a loop boundary
     const d = Math.min(sp / M(60000), 1);
     const L = loop ? (Math.floor(local / END_PX * 3) + loop) % 3 : sp < DIRT_PX ? 0 : sp < GROUND_PX ? 1 : 2;
     const lp = loop ? (local / (END_PX / 3)) % 1 : L === 0 ? sp / DIRT_PX : L === 1 ? (sp - DIRT_PX) / (GROUND_PX - DIRT_PX) : Math.min((sp - GROUND_PX) / M(30000), 1);
-    // A short clear corridor makes each transition fair even on a narrow screen.
+    // A short clear corridor makes each transition fair even on a narrow screen
     if (loop && local < M(250)) {
       dropArc(W / 2, -sp, 4, 1); spawnDist += 250; return;
     }
     const y = -sp;
     const dir = Math.random() < 0.5 ? -1 : 1;
     let pool;
-    if (L === 0) pool = [['rockwall', 3], ['boulders', 3], ['rest', 1]];                                   // dirt: rocks
-    else if (L === 1) pool = [['crow', 3], ['crows2', 2 + (lp > 0.3 ? 1 : 0)], ['rest', 1]];               // ground: birds
-    else pool = [['cloudwall', 3], ['storm', 2], ['balloon', 3], ['rest', 1]];               // sky: clouds and stuff
+    if (L === 0) pool = [['rockwall', 3], ['boulders', 3], ['rest', 1]]; // dirt: rocks
+    else if (L === 1) pool = [['crow', 3], ['crows2', 2 + (lp > 0.3 ? 1 : 0)], ['rest', 1]]; // ground: birds
+    else pool = [['cloudwall', 3], ['storm', 2], ['balloon', 3], ['rest', 1]]; // sky: clouds and stuff
     const kind = pick(pool);
     if (kind === 'rockwall' || kind === 'cloudwall') {
       const gw = (kind === 'rockwall' ? 165 : 175) - lp * 55;
@@ -476,7 +488,7 @@
       dropArc(rand(50, W - 50), y, 4, dir);
     }
     if (!shield && sp > 300 && Math.random() < 0.1) drops.push({ x: rand(40, W - 40), y: y - 120, kind: 'sun', ph: rand(0, 6) });
-    // Seed Packs are intentionally extremely rare: roughly one chance per several hundred rows.
+    // Seed Packs are extremely rare: about one chance per several hundred rows
     if (sp > 2500 && Math.random() < 0.0015) {
       drops.push({ x: rand(40, W - 40), y: y - 145, kind: 'seedpack', ph: rand(0, 6) });
     }
@@ -491,7 +503,7 @@
     return p < 1.6 ? 'idle' : p < 2.4 ? 'warn' : p < 2.65 ? 'strike' : 'fade';
   }
   // A rock or cloud wall is a row of overlapping blobs on each side of a gap. Walking outward from the gap
-  // keeps the opening exactly as wide as intended, and the wall reaches whatever width the screen has.
+  // keeps the opening exactly as wide as intended, and the wall reaches whatever width the screen has
   function wallBlobs(o, from, to, cb) {
     const rock = o.skin === 'rock';
     const r0 = rock ? 22 : 30, rv = rock ? 11 : 12, vy = rock ? 5 : 8;
@@ -512,8 +524,9 @@
     }
   }
 
-  // ---------- effects ----------
+  // effects
   function burst(x, y, color, n, spd) {
+    if (reducedMotion) return;
     for (let i = 0; i < n; i++) {
       const a = rand(0, Math.PI * 2), s = rand(0.4, 1) * spd;
       parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 40, life: 1, r: rand(2, 4), c: color });
@@ -532,7 +545,7 @@
     }
   }
 
-  // ---------- abilities ----------
+  // abilities
   function abilityLabel(a) {
     return a === 'dehydration' ? 'Dehydration' :
       a === 'big' ? 'Big' :
@@ -570,7 +583,7 @@
     updateAbilityUI();
   }
 
-  // ---------- gameplay ----------
+  // gameplay
   function circleRect(cx, cy, r, rx, ry, rw, rh) {
     const nx = clamp(cx, rx, rx + rw), ny = clamp(cy, ry, ry + rh);
     return (cx - nx) * (cx - nx) + (cy - ny) * (cy - ny) < r * r;
@@ -654,7 +667,7 @@
       saveProgress();
       updateHud(true);
     }
-    if (P.y < GY - 8) {          // leaves and blooms only grow above the soil
+    if (P.y < GY - 8) { // leaves and blooms only grow above the soil
       if (dist - lastLeafDist >= 70 - 24 * mat) {
         lastLeafDist = dist; leafSide = -leafSide;
         leaves.push({ kind: 'leaf', evo: curEvo, x: P.x, y: P.y, side: leafSide, age: 0, size: (0.75 + 0.75 * mat) * rand(0.9, 1.1), tri: meters >= STAGES[1].m && Math.random() < 0.35 + 0.6 * mat });
@@ -676,7 +689,7 @@
 
     // each evolution leaves its own kind of trail
     const ev = EVOS[curEvo];
-    if (ev.fx && Math.random() < dt * 26) {
+    if (ev.fx && !reducedMotion && Math.random() < dt * 26) {
       const q = { x: P.x + rand(-14, 14), y: P.y + rand(0, 26), vx: rand(-20, 20), vy: rand(-30, 30), life: 0.9, r: rand(2, 3.4), c: '#FFFFFF' };
       if (ev.fx === 'puff') { q.vy = rand(10, 40); q.life = 1.1; q.r = rand(3, 6); }
       else if (ev.fx === 'sun') { q.c = '#FFD86B'; q.vy = rand(-40, -5); }
@@ -692,7 +705,7 @@
     const inShower = !!sh;
     if (inShower) {
       water = Math.min(100, water + 46 * SPDM * dt);
-      if (Math.random() < dt * 22) parts.push({ x: P.x + rand(-26, 26), y: P.y + rand(-30, 10), vx: rand(-20, 20), vy: rand(-80, -20), life: 0.7, r: rand(1.5, 3), c: '#8FD8FF' });
+      if (!reducedMotion && Math.random() < dt * 22) parts.push({ x: P.x + rand(-26, 26), y: P.y + rand(-30, 10), vx: rand(-20, 20), vy: rand(-80, -20), life: 0.7, r: rand(1.5, 3), c: '#8FD8FF' });
       if (!wasShower) { sfx.rain(); floaters.push({ x: W / 2, y: P.y - 70, life: 1.1, text: sh.under ? 'Water!' : 'Rain!' }); }
     }
     wasShower = inShower;
@@ -768,7 +781,7 @@
 
     score = Math.floor(meters) + bonus;
     if (!endless && dist >= END_PX && state === 'play') {
-      // Stop exactly at the milestone so the victory score is 100,000 m, not an overshoot.
+      // stop exactly at the milestone so the victory score is 100,000 m, not an overshoot
       dist = END_PX;
       P.y = -END_PX;
       score = END_M;
@@ -780,7 +793,7 @@
 
   function updateHud(force) {
     if (score !== lastScore || force) { scoreEl.textContent = fmt(score); lastScore = score; }
-    const shownBest = Math.max(runBest(), score);      // the "best" label follows you once you pass it
+    const shownBest = Math.max(runBest(), score); // the "best" label follows you once you pass it
     if (shownBest !== lastShownBest || force) {
       lastShownBest = shownBest;
       hudBest.hidden = shownBest <= 0;
@@ -800,7 +813,7 @@
     updateAbilityUI();
   }
 
-  // ---------- flow ----------
+  // flow
   const INTRO_END = 4.6;
   const SURF_REST = GY - 13, DEEP_REST = 14;
   const easeIO = k => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
@@ -814,7 +827,7 @@
     sfx.thud(); buzz(25);
   }
 
-  // Cutscene: a seed drops from the sky, digs itself in, tunnels down to the very bottom, and sprouts.
+  // cutscene: a seed drops from the sky, digs itself in, tunnels down to the very bottom, and sprouts
   function stepIntro(dt) {
     introT += dt;
     const t = introT;
@@ -863,13 +876,13 @@
     } else {
       P.y = 0; P.open = 1; cam = camE; seed.vis = false; coat = true;
       if (state === 'intro') beginPlay();
-      else if (t > 7) reset();      // menu: loop the cutscene as an attract screen
+      else if (t > 7) reset(); // menu: loop the cutscene as an attract screen
     }
   }
 
-  // ---------- main menu: a time-lapse of the whole climb, dirt to space ----------
-  const MENU_LEN = 44;            // seconds for the full trip, a little over 4 seconds per evolution
-  const menuTipF = () => (TIPF > 0.7 ? 0.58 : 0.5);          // the growing tip sits between the title and the buttons
+  // main menu
+  const MENU_LEN = 44; // seconds for the full trip, a bit over 4 seconds per evolution
+  const menuTipF = () => (TIPF > 0.7 ? 0.58 : 0.5); // the growing tip sits between the title and the buttons
   function menuMeters(t) {
     t = Math.max(0, t);
     const seg = MENU_LEN / (EVOS.length - 1);
@@ -879,7 +892,7 @@
   }
   function menuInit() {
     mnT = 0; mnAcc = { leaf: 0, curl: 0, flower: 0, pod: 0 };
-    P.x = W / 2; P.y = GY + 1000; P.open = 1; P.ang = 0; P.vx = 0; P.sq = 0;      // start in the dirt, just under the surface
+    P.x = W / 2; P.y = GY + 1000; P.open = 1; P.ang = 0; P.vx = 0; P.sq = 0; // start in the dirt, just under the surface
     trail = [{ x: W / 2, y: P.y + 60, d: 0 }];
     leaves = []; parts = []; floaters = []; obst = []; drops = []; showers = [];
     seed.vis = false; coat = false; mound = 0; curEvo = 0; dist = 0; layer = 0; leafSide = 1;
@@ -891,11 +904,11 @@
     const t = mnT, sp = 240;
     const meters = menuMeters(Math.min(t, MENU_LEN));
     dist = M(meters);
-    const holding = t >= MENU_LEN;                       // hold still for a beat in space
+    const holding = t >= MENU_LEN; // hold still for a beat in space
     const py = holding ? 0 : sp * dt;
     P.y -= py;
     const tt = Math.min(t, MENU_LEN);
-    P.x = W / 2 + Math.sin(tt * 0.9) * 62 + Math.sin(tt * 0.37 + 1) * 34;         // wander from side to side
+    P.x = W / 2 + Math.sin(tt * 0.9) * 62 + Math.sin(tt * 0.37 + 1) * 34; // wander from side to side
     const vx = Math.cos(tt * 0.9) * 62 * 0.9 + Math.cos(tt * 0.37 + 1) * 34 * 0.37;
     P.vx += (vx - P.vx) * Math.min(1, dt * 6);
     P.ang += (clamp(P.vx / 420, -0.4, 0.4) - P.ang) * Math.min(1, dt * 6);
@@ -906,7 +919,7 @@
       while (trail.length > 3 && trail[1].y > cam + H + 140) trail.shift();
       for (const k in mnAcc) mnAcc[k] += py;
       const mat = clamp(meters / 50000, 0, 1);
-      if (P.y < GY - 8) {                                // leaves and blooms only above the soil, like the real thing
+      if (P.y < GY - 8) { // leaves and blooms only above the soil, like the real thing
         if (mnAcc.leaf >= 62 - 20 * mat) {
           mnAcc.leaf = 0; leafSide = -leafSide;
           leaves.push({ kind: 'leaf', evo: curEvo, x: P.x, y: P.y, side: leafSide, age: 0, size: (0.75 + 0.75 * mat) * rand(0.9, 1.1), tri: meters >= STAGES[1].m && Math.random() < 0.35 + 0.6 * mat });
@@ -918,14 +931,14 @@
     }
     for (const l of leaves) l.age += dt;
     leaves = leaves.filter(l => l.y < cam + H + 100);
-    while (curEvo < EVOS.length - 1 && meters >= EVOS[curEvo + 1].m) {           // each new form gets a little sparkle
+    while (curEvo < EVOS.length - 1 && meters >= EVOS[curEvo + 1].m) { // each new form gets a bit sparkle
       curEvo++;
       const ev = EVOS[curEvo];
       burst(P.x, P.y, '#FFFFFF', 12, 260);
       burst(P.x, P.y, ev.leaf === 'rainbow' ? '#FFD86B' : ev.leaf, 12, 220);
     }
     const ev = EVOS[curEvo];
-    if (ev.fx && Math.random() < dt * 26) {
+    if (ev.fx && !reducedMotion && Math.random() < dt * 26) {
       const q = { x: P.x + rand(-14, 14), y: P.y + rand(0, 26), vx: rand(-20, 20), vy: rand(-30, 30), life: 0.9, r: rand(2, 3.4), c: '#FFFFFF' };
       if (ev.fx === 'puff') { q.vy = rand(10, 40); q.life = 1.1; q.r = rand(3, 6); }
       else if (ev.fx === 'sun') { q.c = '#FFD86B'; q.vy = rand(-40, -5); }
@@ -939,18 +952,18 @@
     if (t > MENU_LEN + 2.4) { reset(); menuInit(); }
   }
 
-  // ---------- menu music: a gentle looping tune, synthesized so it needs no files ----------
+  // menu music
   let music = null, noiseBuffer = null;
-  const MUSIC_MASTER = 1.25;      // menu volume
-  const MUSIC_GAME = MUSIC_MASTER * 0.32;      // quieter under gameplay so sound effects read clearly
+  const MUSIC_MASTER = 1.25; // menu volume
+  const MUSIC_GAME = MUSIC_MASTER * 0.32; // quieter under gameplay so sound effects read clearly
   let musicLevel = MUSIC_MASTER;
-  const SIXTEENTH = 60 / 88 / 4;                          // 88 beats per minute
+  const SIXTEENTH = 60 / 88 / 4; // 88 beats per minute
   const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
-  const CHORDS = [                                        // C  Am  F  G  |  C  Em  F  G
+  const CHORDS = [ // C  Am  F  G  |  C  Em  F  G
     { r: 48, p: [60, 64, 67] }, { r: 45, p: [57, 60, 64] }, { r: 41, p: [57, 60, 65] }, { r: 43, p: [55, 59, 62] },
     { r: 48, p: [60, 64, 67] }, { r: 40, p: [59, 64, 67] }, { r: 41, p: [57, 60, 65] }, { r: 43, p: [55, 59, 62] }
   ];
-  const MELODY = [                                        // [step in the bar, note, length in steps]
+  const MELODY = [ // [step in the bar, note, length in steps]
     [[0, 79, 4], [4, 76, 2], [6, 79, 2], [8, 84, 6]],
     [[0, 81, 4], [4, 79, 2], [6, 76, 2], [8, 79, 8]],
     [[0, 81, 4], [4, 77, 4], [8, 79, 4], [12, 81, 4]],
@@ -992,11 +1005,11 @@
   function scheduleStep(s, t) {
     const bar = Math.floor(s / 16), st = s % 16, ch = CHORDS[bar], bus = music.bus;
     if (st === 0) {
-      ch.p.forEach(n => tn(mtof(n), t, SIXTEENTH * 16 + 0.3, 'triangle', 0.028, 0.6, bus, undefined, 1.6));      // soft pad
-      tn(mtof(ch.r), t, SIXTEENTH * 6, 'sine', 0.13, 0.02, bus);                                                 // bass
+      ch.p.forEach(n => tn(mtof(n), t, SIXTEENTH * 16 + 0.3, 'triangle', 0.028, 0.6, bus, undefined, 1.6)); // soft pad
+      tn(mtof(ch.r), t, SIXTEENTH * 6, 'sine', 0.13, 0.02, bus); // bass
     }
     if (st === 8) tn(mtof(ch.r), t, SIXTEENTH * 4, 'sine', 0.1, 0.02, bus);
-    if (st % 2 === 0) {                                                                                          // music-box arpeggio
+    if (st % 2 === 0) { // music-box arpeggio
       const a = ch.p, k = (st / 2) % 8;
       const seq = [a[0] + 12, a[1] + 12, a[2] + 12, a[0] + 24, a[2] + 12, a[1] + 12, a[2] + 12, a[1] + 12];
       tn(mtof(seq[k]), t, 0.5, 'triangle', 0.05, 0.005, bus, Math.sin(s * 0.7) * 0.5);
@@ -1016,19 +1029,19 @@
   }
   function applyMusicVolume(tc) {
     if (!music || !AC) return;
-    try { music.master.gain.setTargetAtTime(muted ? 0.0001 : musicLevel, AC.currentTime, tc || 0.25); } catch (e) {}
+    try { music.master.gain.setTargetAtTime(muted ? 0.0001 : Math.max(0.0001, musicLevel * musicVol), AC.currentTime, tc || 0.25); } catch (e) {}
   }
   function startMusic() {
     if (music || !AC) return;
     try {
       const master = AC.createGain(); master.gain.value = 0.0001; master.connect(AC.destination);
       const bus = AC.createGain(); bus.connect(master);
-      const dl = AC.createDelay(1.0); dl.delayTime.value = SIXTEENTH * 3;        // a soft dotted-eighth echo
+      const dl = AC.createDelay(1.0); dl.delayTime.value = SIXTEENTH * 3; // a soft dotted-eighth echo
       const fb = AC.createGain(); fb.gain.value = 0.35;
       const wet = AC.createGain(); wet.gain.value = 0.32;
       bus.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(master);
       music = { master, bus, step: 0, next: AC.currentTime + 0.15, timer: setInterval(musicTick, 90) };
-      applyMusicVolume(1.6);                                                     // fade in
+      applyMusicVolume(1.6); // fade in
     } catch (e) { music = null; }
   }
   function stopMusic() {
@@ -1065,12 +1078,15 @@
       [soundToggle, !muted],
       [hintsToggle, gameplayHintsSetting],
       [autoPauseToggle, autoPauseSetting],
-      [tvToggle, tvMode]
+      [tvToggle, tvMode],
+      [reducedMotionToggle, reducedMotion]
     ];
     for (const [el, on] of items) {
       el.classList.toggle('on', on);
       el.setAttribute('aria-checked', String(on));
     }
+    musicVolEl.value = String(Math.round(musicVol * 100)); musicVolVal.textContent = Math.round(musicVol * 100) + '%';
+    sfxVolEl.value = String(Math.round(sfxVol * 100)); sfxVolVal.textContent = Math.round(sfxVol * 100) + '%';
     muteBtn.classList.toggle('muted', muted);
     muteBtn.setAttribute('aria-label', muted ? 'Turn sound on' : 'Turn sound off');
     const soundLabel = 'Sound: ' + (muted ? 'off' : 'on');
@@ -1089,11 +1105,48 @@
     show(startEl);
   }
 
+  // secret: tap "Haptic feedback" 10 times fast -> 2x game speed for 5 minutes
+  // (or until the game is restarted / the page is reloaded)
+  const SPEED_TAPS = 10, SPEED_WINDOW = 4000, SPEED_DURATION = 5 * 60 * 1000;
+  let speedBoostUntil = 0, speedTaps = [], speedTapsStartHaptics = true;
+  function speedBoostActive() {
+    if (speedBoostUntil && performance.now() >= speedBoostUntil) speedBoostUntil = 0;
+    return speedBoostUntil > 0;
+  }
+  function showSpeedToast(msg) {
+    try {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      t.style.cssText = 'position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:99999;padding:10px 18px;border-radius:999px;background:rgba(21,21,31,.92);color:#fff;font:700 15px system-ui,sans-serif;pointer-events:none;transition:opacity .4s;box-shadow:0 4px 18px rgba(0,0,0,.35)';
+      document.body.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; }, 1800);
+      setTimeout(() => { t.remove(); }, 2300);
+    } catch (e) {}
+  }
+  function startSpeedBoost() {
+    speedBoostUntil = performance.now() + SPEED_DURATION;
+    showSpeedToast('2x speed for 5 minutes!');
+  }
+  function cancelSpeedBoost() {
+    if (speedBoostUntil) { speedBoostUntil = 0; showSpeedToast('Speed back to normal'); }
+  }
+
   function toggleHaptics() {
+    const nowT = performance.now();
+    speedTaps = speedTaps.filter(t => nowT - t < SPEED_WINDOW);
+    if (!speedTaps.length) speedTapsStartHaptics = haptics;
+    speedTaps.push(nowT);
+    const unlocked = speedTaps.length >= SPEED_TAPS;
     haptics = !haptics;
+    if (unlocked) {
+      // the 10 taps shouldn't leave the setting flipped, so put it back
+      haptics = speedTapsStartHaptics;
+      speedTaps = [];
+      startSpeedBoost();
+    }
     saveSetting('beanbound2-haptics', haptics ? 'on' : 'off');
     updateSettingsUI();
-    if (haptics) buzz(18);
+    if (haptics) buzz(unlocked ? 60 : 18);
   }
 
   function toggleGameplayHints() {
@@ -1108,6 +1161,28 @@
     saveSetting('beanbound2-autopause', autoPauseSetting ? 'on' : 'off');
     updateSettingsUI();
   }
+
+  function toggleReducedMotion() {
+    reducedMotion = !reducedMotion;
+    saveSetting('beanbound2-reducedmotion', reducedMotion ? 'on' : 'off');
+    if (reducedMotion) { parts.length = 0; shake = 0; }
+    updateSettingsUI();
+  }
+
+  function onMusicVolInput() {
+    musicVol = Math.min(1, Math.max(0, parseInt(musicVolEl.value, 10) / 100 || 0));
+    musicVolVal.textContent = Math.round(musicVol * 100) + '%';
+    saveSetting('beanbound2-musicvol', String(musicVol));
+    applyMusicVolume(0.05);
+  }
+
+  function onSfxVolInput() {
+    sfxVol = Math.min(1, Math.max(0, parseInt(sfxVolEl.value, 10) / 100 || 0));
+    sfxVolVal.textContent = Math.round(sfxVol * 100) + '%';
+    saveSetting('beanbound2-sfxvol', String(sfxVol));
+  }
+
+  function onSfxVolChange() { initAudio(); if (!muted) sfx.drop(1); } // a sample blip so you can hear the level
 
   let resetConfirmStep = 0;
 
@@ -1156,11 +1231,15 @@
       localStorage.removeItem('beanbound2-hints');
       localStorage.removeItem('beanbound2-autopause');
       localStorage.removeItem('beanbound2-muted');
+      localStorage.removeItem('beanbound2-musicvol');
+      localStorage.removeItem('beanbound2-sfxvol');
+      localStorage.removeItem('beanbound2-reducedmotion');
     } catch (e) {}
     haptics = false;
     gameplayHintsSetting = true;
     autoPauseSetting = true;
     muted = false;
+    musicVol = 1; sfxVol = 1; reducedMotion = osReducedMotion();
     updateSettingsUI();
     applyMusicVolume(0.05);
   }
@@ -1196,7 +1275,7 @@
     musicLevel = MUSIC_MASTER;
     stopMusic();
     initAudio();
-    startMusic();          // back on the menu: the tune stops and restarts at normal volume
+    startMusic(); // back on the menu: the tune stops and restarts at normal volume
   }
 
   function pauseGame() {
@@ -1235,7 +1314,7 @@
     saveProgress();
   }
 
-  // The Evolutions screen: every form, first to last; forms you haven't reached yet show as silhouettes
+  // the Evolutions screen: every form, first to last; forms you haven't reached yet show as silhouettes
   let evoCanvases = [], evoSil = EVOS.map(e => Object.assign({}, e, { glow: null }));
   function buildEvos() {
     const list = $('evoList');
@@ -1262,9 +1341,9 @@
     });
     $('evosCount').textContent = n + ' of ' + EVOS.length + ' unlocked';
   }
-  // Each evolution gets a big picture of itself in its own part of the world (drawn from the game's own art)
+  // each evolution gets a big picture of itself in its own part of the world (drawn from the game's own art)
   function drawEvoScene(w, h, ev, i) {
-    if (ev.m < DIRT_M) {                                   // underground: soil
+    if (ev.m < DIRT_M) { // underground: soil
       const g = ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, '#7A4B32'); g.addColorStop(1, '#3B251B');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
@@ -1285,7 +1364,7 @@
     const g = ctx.createLinearGradient(0, 0, 0, h);
     g.addColorStop(0, c[0]); g.addColorStop(1, c[1]);
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-    if (t < 0.34) {                                         // forest
+    if (t < 0.34) { // forest
       ctx.fillStyle = 'rgba(8,38,34,.33)';
       for (const tr of TRUNKS) ctx.fillRect(tr.x * w - tr.w * 1.6, 0, tr.w * 3.2, h);
       ctx.fillStyle = '#FFF3A0';
@@ -1385,7 +1464,7 @@
     state = won ? 'victory' : 'over';
     releaseWakeLock();
     if (won) {
-      // The big milestone is a celebration, not a normal game-over screen.
+      // the big milestone is a celebration, not a normal game-over screen
       sfx.win(); buzz(120);
       curEvo = 0;
       P.x = W / 2; P.y = 0; P.vx = 0; P.ang = 0; P.sq = 0; P.open = 1;
@@ -1431,7 +1510,7 @@
     $('bestStart').textContent = [best > 0 ? 'Best ' + fmt(best) : '', endlessBest > 0 ? 'Endless best ' + fmt(endlessBest) : ''].filter(Boolean).join(' · ');
   }
 
-  // ---------- input ----------
+  // input
   cv.addEventListener('pointerdown', e => {
     if (state === 'intro') { e.preventDefault(); if (introT > 0.5) skipIntro(); return; }
     if (state === 'victory') {
@@ -1456,7 +1535,7 @@
     }
     const raw = ptr.spx + ((e.clientX - ptr.sx) / scale) * 1.4;
     const c = clamp(raw, 16, W - 16);
-    if (c !== raw) ptr.sx += ((raw - c) / 1.4) * scale;   // no dead zone at the walls
+    if (c !== raw) ptr.sx += ((raw - c) / 1.4) * scale; // no dead zone at the walls
     tx = c;
   });
   const endPtr = e => { if (ptr && e.pointerId === ptr.id) ptr = null; };
@@ -1496,6 +1575,10 @@
   soundToggle.addEventListener('click', toggleSound);
   hintsToggle.addEventListener('click', toggleGameplayHints);
   autoPauseToggle.addEventListener('click', toggleAutoPause);
+  reducedMotionToggle.addEventListener('click', toggleReducedMotion);
+  musicVolEl.addEventListener('input', onMusicVolInput);
+  sfxVolEl.addEventListener('input', onSfxVolInput);
+  sfxVolEl.addEventListener('change', onSfxVolChange);
   $('resetProgress').addEventListener('click', () => showResetConfirm(0));
   $('resetConfirmYes').addEventListener('click', confirmResetProgress);
   $('resetConfirmNo').addEventListener('click', cancelResetConfirm);
@@ -1507,7 +1590,26 @@
     hide(settingsEl);
     openWhatsNew('settings');
   });
-  $('play').addEventListener('click', () => startGame(false, false));
+  // Moon switch. true: after beating the game you travel to the Moon, and once your best
+  // reaches 5,000 Play opens the Earth / Moon picker. false: beating the game shows
+  // "Moon coming soon" and Play always starts Earth, whatever your score
+  const MOON_AVAILABLE = false;
+  $('play').addEventListener('click', () => {
+    if (MOON_AVAILABLE && best >= 5000) { show($('worldPick')); return; }
+    startGame(false, false);
+  });
+  $('worldEarth').addEventListener('click', () => { hide($('worldPick')); startGame(false, false); });
+  $('worldCancel').addEventListener('click', () => hide($('worldPick')));
+  $('worldMoon').addEventListener('click', () => { hide($('worldPick')); stopMusic(); openMoon(); });
+  function openMoon() {
+    const f = $('moonFrame');
+    try { f.srcdoc = document.getElementById('moonSrc').textContent.replace(/<\\\/script/g, '</script'); } catch (err) { return; }
+    f.hidden = false;
+  }
+  window.addEventListener('message', ev => {
+    if (ev.data !== 'beanbound:earth') return;
+    const f = $('moonFrame'); f.hidden = true; f.removeAttribute('srcdoc'); f.src = 'about:blank';
+  });
   $('shareScore').addEventListener('click', async () => {
     const shareText = `I just reached ${fmt(score)}m in Beanbound!`;
     try {
@@ -1521,11 +1623,11 @@
         setTimeout(() => { btn.textContent = oldText; }, 1400);
       }
     } catch (err) {
-      // Sharing was cancelled or unavailable; keep the game running normally.
+      // sharing was cancelled or unavailable; keep the game running normally
     }
   });
   $('again').addEventListener('click', () => startGame());
-  // The victory room is controlled by steering into the two choices on the canvas.
+  // the victory room is controlled by steering into the two choices on the canvas
   $('moonPlayAgain').addEventListener('click', () => { toMenu(); });
   $('openEvos').addEventListener('click', () => { buildEvos(); hide(settingsEl); show(evosEl); });
   $('evosBack').addEventListener('click', () => { hide(evosEl); show(settingsEl); updateSettingsUI(); });
@@ -1537,7 +1639,7 @@
   });
   $('pauseBtn').addEventListener('click', pauseGame);
   $('resume').addEventListener('click', resumeGame);
-  $('restart').addEventListener('click', () => startGame(true));
+  $('restart').addEventListener('click', () => { cancelSpeedBoost(); startGame(true); });
   $('toMenu').addEventListener('click', toMenu);
   $('overMenu').addEventListener('click', toMenu);
   muteBtn.addEventListener('click', toggleSound);
@@ -1547,7 +1649,7 @@
     if (document.hidden) pauseGame();
     try { if (AC) { if (document.hidden) AC.suspend(); else AC.resume(); } } catch (e) {}
   });
-  // Browsers only allow sound after a tap, so the menu tune starts on the first tap anywhere
+  // browsers only allow sound after a tap, so the menu tune starts on the first tap anywhere
   function menuMusicGesture() {
     if (state !== 'menu') return;
     initAudio();
@@ -1565,7 +1667,7 @@
     }
   });
 
-  // ---------- drawing helpers ----------
+  // drawing helpers
   function rr(x, y, w, h, r) {
     r = Math.min(r, w / 2, h / 2);
     ctx.beginPath();
@@ -1590,10 +1692,10 @@
     ctx.fillStyle = fill; ctx.fill();
   }
 
-  // ---------- sky (screen space) ----------
+  // sky (screen space)
   function drawSky(tm) {
     const t = skyT(dist);
-    const pd = state === 'menu' ? -P.y : dist;       // parallax follows how far we've really scrolled
+    const pd = state === 'menu' ? -P.y : dist; // parallax follows how far we've really scrolled
     const c = endless && loopAt(dist) > 0 ? endlessSky(dist) : skyAt(t);
     const g = ctx.createLinearGradient(0, 0, 0, vh);
     g.addColorStop(0, c[0]); g.addColorStop(1, c[1]);
@@ -1649,7 +1751,7 @@
       ctx.fillStyle = '#FFF6DD';
       for (const s of STARFIELD) {
         const y = (s.y * vh + off) % vh;
-        ctx.globalAlpha = starA * (0.55 + 0.45 * Math.sin(tm * 2 + s.p));
+        ctx.globalAlpha = starA * (reducedMotion ? 0.8 : 0.55 + 0.45 * Math.sin(tm * 2 + s.p));
         ctx.beginPath(); ctx.arc(s.x * vw, y, s.r, 0, Math.PI * 2); ctx.fill();
       }
       ctx.globalAlpha = 1;
@@ -1669,11 +1771,11 @@
     }
   }
 
-  // ---------- world drawing ----------
-  // The soil under the grass line, with the grass, the planting mound and the seed coat
+  // world drawing
+  // the soil under the grass line, with the grass, the planting mound and the seed coat
   function drawTerrain(tm) {
     const top = Math.max(GY, cam - 60), bot = cam + H + 80;
-    if (bot < GY - 40) return;                    // the surface isn't in view yet
+    if (bot < GY - 40) return; // the surface isn't in view yet
     const g = ctx.createLinearGradient(0, GY, 0, 0);
     g.addColorStop(0, '#8E5C3D'); g.addColorStop(1, '#3B251B');
     ctx.fillStyle = g;
@@ -1822,13 +1924,13 @@
     const ph = stormPhase(o);
     const bx = o.x - 15, by = o.y + 20;
     if (ph === 'warn') {
-      const a = 0.12 + 0.1 * Math.sin(tm * 26);
+      const a = reducedMotion ? 0.2 : 0.12 + 0.1 * Math.sin(tm * 26);
       ctx.fillStyle = 'rgba(255,228,92,' + a.toFixed(3) + ')';
       ctx.fillRect(bx, by, 30, 230);
       ctx.setLineDash([8, 7]); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,228,92,.85)';
       ctx.strokeRect(bx, by, 30, 230); ctx.setLineDash([]);
     } else if (ph === 'strike') {
-      ctx.fillStyle = 'rgba(255,255,255,.28)';
+      ctx.fillStyle = reducedMotion ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.28)';
       ctx.fillRect(bx, by, 30, 230);
       const pts = [[0, 0], [-9, 40], [6, 80], [-10, 125], [5, 170], [-4, 210], [0, 232]];
       ctx.lineJoin = 'round'; ctx.lineCap = 'round';
@@ -1954,7 +2056,7 @@
       const bob = Math.sin(tm * 3 + s.ph) * 3;
       if (s.kind === 'seedpack') {
         // Seed Packs use the same simple teardrop silhouette as water,
-        // but with a warm seed-brown fill and a small highlight.
+        // but with a warm seed-brown fill and a small highlight
         ctx.save();
         ctx.translate(s.x, s.y + bob);
         ctx.rotate(-0.18 + Math.sin(tm * 2 + s.ph) * 0.04);
@@ -2074,7 +2176,7 @@
     ctx.restore();
   }
 
-  // The stem is thin at the growing tip and thickens with age, and thicker overall as the plant matures
+  // the stem is thin at the growing tip and thickens with age, and thicker overall as the plant matures
   function drawStalk(tm) {
     for (const l of leaves) drawDeco(l, tm);
     const pts = trail.slice();
@@ -2108,7 +2210,7 @@
     }
   }
 
-  // The bean seed, used in the planting cutscene
+  // the bean seed, used in the planting cutscene
   function drawSeed(tm) {
     const s = seed;
     ctx.save();
@@ -2152,7 +2254,7 @@
     ctx.restore();
   }
 
-  // ---- evolutions: how each form of the shoot tip looks ----
+  // evolutions
   function evoLeaf(ev, tm, k) {
     return ev.leaf === 'rainbow' ? 'hsl(' + Math.floor((tm * 70 + k * 50 + 720) % 360) + ',85%,68%)' : ev.leaf;
   }
@@ -2226,7 +2328,7 @@
       ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI * 2); ctx.fillStyle = '#FFD86B'; ctx.fill(); ctx.lineWidth = 2.2; ctx.stroke();
       ctx.restore();
     } else if (kind === 'bolt') {
-      ctx.save(); ctx.globalAlpha = 0.75 + 0.25 * Math.sin(tm * 22);
+      ctx.save(); ctx.globalAlpha = reducedMotion ? 1 : 0.75 + 0.25 * Math.sin(tm * 22);
       ctx.beginPath();
       ctx.moveTo(3, -34); ctx.lineTo(-5, -21); ctx.lineTo(0, -21); ctx.lineTo(-4, -10); ctx.lineTo(7, -25); ctx.lineTo(1, -25); ctx.closePath();
       ctx.fillStyle = '#FFE45C'; ctx.lineWidth = 2.2; ctx.strokeStyle = INK; ctx.fill(); ctx.stroke();
@@ -2251,7 +2353,7 @@
     }
   }
 
-  // The player: the growing tip of the shoot, a bud between two leaves, with a crown that depends on its evolution
+  // the player: the growing tip of the shoot, a bud between two leaves, with a crown that depends on its evolution
   function drawShoot(px, py, sq, look, rot, tm, open, thirsty, grow, evo) {
     const ev = evo || EVOS[0];
     ctx.save();
@@ -2261,7 +2363,7 @@
     ctx.scale(sc * grow, grow / sc);
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
 
-    if (ev.glow) {          // higher forms glow
+    if (ev.glow) { // higher forms glow
       const gl = ctx.createRadialGradient(0, -8, 4, 0, -8, 48);
       const a = 0.5 + 0.12 * Math.sin(tm * 3);
       gl.addColorStop(0, 'rgba(' + ev.glow + ',' + a.toFixed(2) + ')'); gl.addColorStop(1, 'rgba(' + ev.glow + ',0)');
@@ -2269,7 +2371,7 @@
     }
 
     // two leaves: folded when it first emerges, splayed while growing, drooping when thirsty
-    const spread = 0.05 + ((thirsty ? 1.5 : 0.75) - 0.05) * open + Math.sin(tm * 11) * 0.06 * open + sq * 0.15;
+    const spread = 0.05 + ((thirsty ? 1.5 : 0.75) - 0.05) * open + (reducedMotion ? 0 : Math.sin(tm * 11) * 0.06) * open + sq * 0.15;
     const ls = ev.ls;
     for (const side of [-1, 1]) {
       ctx.save();
@@ -2323,8 +2425,8 @@
   function drawPlayer(tm) {
     const thirsty = water < 25 && state === 'play';
     if (invuln > 0 && Math.floor(tm * 14) % 2 === 0) ctx.globalAlpha = 0.45;
-    const gr = (1 + 0.35 * maturity()) * abilityScale();     // the shoot tip gets bigger/smaller with an active ability
-    const up = clamp((GY + 30 - P.y) / 60, 0, 1);      // leaves unfurl as the tip breaks through the surface
+    const gr = (1 + 0.35 * maturity()) * abilityScale(); // the shoot tip gets bigger/smaller with an active ability
+    const up = clamp((GY + 30 - P.y) / 60, 0, 1); // leaves unfurl as the tip breaks through the surface
     drawShoot(P.x, P.y, P.sq, clamp(P.vx / 300, -1, 1), P.ang, tm, P.open * (0.3 + 0.7 * up), thirsty, gr, EVOS[curEvo]);
     ctx.globalAlpha = 1;
     if (shield) {
@@ -2409,7 +2511,7 @@
     if (grown) drawStalk(tm);
     if (grown && (state !== 'over' || won)) drawPlayer(tm);
     if (seed && seed.vis && (state === 'intro' || state === 'menu')) {
-      if (seed.clip) {          // still sinking into the grass: hide whatever is below the surface
+      if (seed.clip) { // still sinking into the grass: hide whatever is below the surface
         ctx.save();
         ctx.beginPath(); ctx.rect(viewL, cam - 800, viewR - viewL, (GY + 6) - (cam - 800)); ctx.clip();
         drawSeed(tm);
@@ -2417,7 +2519,7 @@
       } else drawSeed(tm);
     }
 
-    for (const q of parts) {
+    if (!reducedMotion) for (const q of parts) {
       ctx.globalAlpha = clamp(q.life, 0, 1);
       ctx.fillStyle = q.c;
       ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, Math.PI * 2); ctx.fill();
@@ -2432,16 +2534,16 @@
       ctx.fillStyle = '#FFD86B'; ctx.fillText(f.text, f.x, f.y);
     }
     ctx.globalAlpha = 1;
-    if (state === 'menu' && menuFade > 0.01) {          // fade in and out of the menu time-lapse
+    if (state === 'menu' && menuFade > 0.01) { // fade in and out of the menu time-lapse
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.fillStyle = 'rgba(10,28,26,' + menuFade.toFixed(3) + ')';
       ctx.fillRect(0, 0, vw, vh);
     }
   }
 
-  // ---------- victory room ----------
-  // Move the seedling left/right with the same controls as the main game.
-  // Touch/drag on mobile updates victoryX; the keyboard works on PC.
+  // victory room
+  // move the seedling left/right with the same controls as the main game
+  // touch/drag on mobile updates victoryX; the keyboard works on PC
   function stepVictory(dt) {
     const dir = clamp((keys.l ? -1 : 0) + (keys.r ? 1 : 0) + padX, -1, 1);
     if (dir) victoryX += dir * VICTORY_SPEED * dt;
@@ -2463,6 +2565,7 @@
   }
 
   function showMoonComingSoon() {
+    if (MOON_AVAILABLE) { toMenu(); stopMusic(); openMoon(); return; }
     state = 'moon';
     ptr = null;
     keys.l = keys.r = false;
@@ -2473,24 +2576,28 @@
     buzz(40);
   }
 
-  // ---------- main loop ----------
+  // main loop
   let last = performance.now();
   function frame(now) {
-    const dt = Math.max(0, Math.min((now - last) / 1000, 0.05));      // never negative, even on the very first frame
+    const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); // never negative, even on the very first frame
     last = now;
     const tm = now / 1000;
     tmNow = tm;
     pollPad(now);
 
     if (state === 'play') {
-      stepPlay(dt);
-      stepFx(dt);
+      // 2x speed boost: run the simulation twice per frame (same small dt, so physics stays stable)
+      const steps = speedBoostActive() ? 2 : 1;
+      for (let i = 0; i < steps && state === 'play'; i++) {
+        stepPlay(dt);
+        stepFx(dt);
+      }
     } else if (state === 'victory') {
       stepVictory(dt);
     } else if (state === 'over') {
       stepFx(dt);
     } else if (state === 'moon') {
-      // Coming-soon overlay is static.
+      // coming-soon overlay is static
     } else if (state === 'paused') {
       // frozen
     } else if (state === 'countdown') {
@@ -2499,21 +2606,21 @@
       if (n <= 0) { state = 'play'; hide(countEl); invuln = Math.max(invuln, 0.6); }
       else if (countEl.textContent !== String(n)) countEl.textContent = String(n);
     } else if (state === 'menu') {
-      stepMenu(dt);       // the menu shows a time-lapse of the whole climb, dirt to space
+      stepMenu(dt); // the menu shows a time-lapse of the whole climb, dirt to space
       stepFx(dt);
     } else {
-      stepIntro(dt);      // plays the planting cutscene
+      stepIntro(dt); // plays the planting cutscene
       stepFx(dt);
     }
-    shake = Math.max(0, shake - dt * 3.2);
+    shake = reducedMotion ? 0 : Math.max(0, shake - dt * 3.2);
     render(tm);
     requestAnimationFrame(frame);
   }
 
-  // ---------- screen wake lock ----------
-  // Keeps the display from dimming/sleeping during a run (the finger stays
+  // screen wake lock
+  // keeps the display from dimming/sleeping during a run (the finger stays
   // on the glass most of the time, but not always). No-ops safely on any
-  // WebView/browser that doesn't support the API.
+  // WebView/browser that doesn't support the API
   let wakeLock = null;
   async function requestWakeLock() {
     try {
@@ -2527,19 +2634,19 @@
     wakeLock = null;
   }
   document.addEventListener('visibilitychange', () => {
-    // The OS revokes the lock whenever the tab/app is hidden; re-request it
-    // once we're back and still mid-run.
+    // the OS revokes the lock when the tab/app is hidden; re-request it
+    // once we're back and still mid-run
     if (document.visibilityState === 'visible' && (state === 'play' || state === 'countdown' || state === 'intro')) requestWakeLock();
   });
 
-  // ---------- Android hardware/gesture back button ----------
+  // android hardware/gesture back button
   // A wrapped WebView (Capacitor, Cordova, a Trusted Web Activity, or a
   // plain WebView whose host calls goBack()) turns the back button/edge
   // gesture into browser history navigation. With no history at all, that
   // exits the app instantly, even mid-run. Keep one "guard" entry pushed at
   // all times so back always has somewhere to go, and route it through the
   // menu/pause logic that already exists instead of letting the page
-  // navigate or the app close unexpectedly.
+  // navigate or the app close unexpectedly
   function pushBackGuard() { try { history.pushState({ bbGuard: true }, ''); } catch (e) {} }
   function closeTopOverlay() {
     if (!whatsNewEl.classList.contains('hidden')) return true;
@@ -2559,8 +2666,8 @@
     if (closeTopOverlay()) { pushBackGuard(); return; }
     if (state === 'play') { pauseGame(); pushBackGuard(); return; }
     if (state !== 'menu') { toMenu(); pushBackGuard(); return; }
-    // Already at the bare main menu: let this one go through so the
-    // wrapper's own back behaviour (minimize/exit the app) can happen.
+    // already at the bare main menu: let this one go through so the
+    // wrapper's own back behaviour (minimize/exit the app) can happen
   });
   pushBackGuard();
 
@@ -2778,7 +2885,7 @@
   updateSettingsUI();
   initSavedBest();
 
-  // Show the developer logo briefly before the main menu.
+  // show the developer logo briefly before the main menu
   let splashTimer = setTimeout(showMainMenuAfterSplash, 2200);
   function showMainMenuAfterSplash() {
     if (!splashEl || splashEl.classList.contains('hidden')) return;
@@ -2788,9 +2895,9 @@
       if (showWhatsNewIfNeeded()) return;
       show(startEl);
       initAudio();
-      startMusic();                 // tries to play right away; if the platform
+      startMusic(); // tries to play right away; if the platform
       if (AC && AC.state === 'running') { const h = $('musicHint'); if (h) h.hidden = true; }
-      // blocks autoplay, the tap-anywhere fallback below (menuMusicGesture) unlocks it.
+      // blocks autoplay, the tap-anywhere fallback below (menuMusicGesture) unlocks it
     }, 550);
   }
   function skipDeveloperSplash() {

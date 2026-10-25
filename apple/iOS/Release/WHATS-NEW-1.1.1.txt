@@ -1,0 +1,4 @@
+New settings are here! Open Settings to customise your game.
+Separate volume sliders for music and sound effects.
+Reduced motion option turns off screen shake, particles, and flashing effects.
+Fun fact: the haptic feedback switch is more fun to tap than it looks. Try it a few times.
