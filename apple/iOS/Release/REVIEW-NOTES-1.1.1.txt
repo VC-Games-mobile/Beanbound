@@ -1,15 +1,11 @@
-Beanbound 1.1.1 (12) imports the upstream settings update. New independent music and sound-effect volume sliders, reduced motion, gameplay hints, auto-pause preferences, and reset-settings controls. Settings persist locally.
+Beanbound 1.1.1 (12) adds independent music and sound-effect volume levels, reduced motion, gameplay-hint and auto-pause preferences, reset settings, and improved native iPhone haptics. Back is the first Settings control. Preferences and progress are saved locally.
 
-For App Review: the optional speed-boost Easter egg is activated by tapping Haptic feedback ten times within four seconds in Settings. It doubles simulation speed for five minutes and restores the original haptics preference after activation. The pause-menu Restart button cancels it. No purchase or login is required. The Moon feature remains disabled.
+To review: tap Play for the normal 100,000-metre climb, or Endless Mode for continuing runs. Drag left/right to steer, catch water, and avoid hazards. Pause opens the pause menu. Settings & More opens the new preferences. Enable Haptic feedback on a supported iPhone to feel pickups, shield hits, evolutions/milestones, game over, and continuous dirt/rain texture. The texture stops on pause, background, menu, game over, or disabling haptics; major events take priority. Unsupported hardware, including iPads without haptic hardware, has no rumble.
 
-No accounts, ads, purchases, external services, or in-app analytics SDKs. All game assets are bundled locally and the game works offline. No regional feature differences.
+Easter egg disclosure: tap Haptic feedback ten times within four seconds in Settings to activate double simulation speed for five minutes. The original haptics preference is restored after activation. The pause-menu Restart button cancels the boost. No purchase or login is required. The Moon feature remains disabled.
 
-Build 8 adds event-specific native iPhone haptics: gentle rate-limited pickups, medium shield impacts, success notifications for evolutions/milestones, and a single heavy game-over impact. The Haptic feedback switch gates every cue.
+Purpose and audience: a casual skill-based arcade game providing offline entertainment through short runs, growing a beanstalk from underground to space and unlocking evolutions.
 
-Build 9 adds subtle environmental haptics: soft soil bumps at most every 900 ms, light rain taps at most every 450 ms while water is being restored, and a native priority delay following hits, milestones, or game over. The same Haptic feedback switch controls these effects.
+No setup, login credentials, accounts, sample files, ads, purchases, user-generated content, external services, or in-app analytics SDKs are required. All game code, artwork, fonts, and music are bundled locally. The developer has permission to distribute the assets, with font licenses in Credits. No regulated services. Features are consistent across regions; the game is in English.
 
-Build 10 adds an optional, very low-intensity continuous Core Haptics texture while growing in dirt or rain, beneath the existing transient cues. It stops on pause, menu, game over, background, disabled haptics, or loss of gameplay heartbeat; priority cues temporarily duck it. Unsupported hardware produces no rumble.
-
-Build 11 moves Back to the first Settings control and increases the continuous environmental haptics following physical-device feedback that the original levels were too faint. Dirt intensity is now 0.24 and rain 0.18; physical feel remains owner-validated.
-
-Build 12 strengthens rain continuous intensity/sharpness and rain taps; Settings Back now shares the normal button stack spacing.
+Validation: iPhone/iPad WKWebView integration tests passed for touch, fonts, audio, lifecycle, persistence, Endless mode, and new settings. Engine tests cover twelve Endless milestones, normal victory, independent volume controls, secret activation/expiry, haptic routing and off/pause stops. Build 12 was exported from the release archive with development signing and installed/launched on a physical iPhone 14. The owner tested and accepted the latest haptic and Settings changes. No physical iPad installation was requested for this release.
