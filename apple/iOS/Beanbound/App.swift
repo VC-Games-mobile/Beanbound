@@ -154,7 +154,7 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
             lastHapticTime = now
             switch kind {
             case "dirt": pickupFeedback.impactOccurred(intensity: 0.2)
-            case "rain": rainFeedback.impactOccurred(intensity: 0.25)
+            case "rain": rainFeedback.impactOccurred(intensity: 0.45)
             case "pickup": pickupFeedback.impactOccurred(intensity: 0.35)
             case "damage": damageFeedback.impactOccurred(intensity: 0.8)
             case "milestone": milestoneFeedback.notificationOccurred(.success)
@@ -215,8 +215,8 @@ private final class EnvironmentRumble {
             guard let engine else { return }
             try engine.start()
             let event = CHHapticEvent(eventType: .hapticContinuous, parameters: [
-                CHHapticEventParameter(parameterID: .hapticIntensity, value: kind == "dirt" ? 0.24 : 0.18),
-                CHHapticEventParameter(parameterID: .hapticSharpness, value: kind == "dirt" ? 0.15 : 0.4)
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: kind == "dirt" ? 0.24 : 0.34),
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: kind == "dirt" ? 0.15 : 0.65)
             ], relativeTime: 0, duration: 30)
             let newPlayer = try engine.makeAdvancedPlayer(with: CHHapticPattern(events: [event], parameters: []))
             newPlayer.loopEnabled = true
