@@ -4,7 +4,7 @@
 // Bump CACHE_VERSION any time you deploy a new build of index.html so
 // returning players pick up the update instead of being stuck on an
 // old cached copy.
-const CACHE_VERSION = 'beanbound-v1.1.0-endless';
+const CACHE_VERSION = 'beanbound-v1.1.1-settings-haptics';
 const APP_SHELL = [
   './',
   './index.html',
