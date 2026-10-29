@@ -1,0 +1,11 @@
+Beanbound 1.2.0 (13) adds Challenge Mode: a frozen mountain climb with tighter gaps, tougher hazards, and faster water drain. Extras on the main menu now contains Challenge Mode and Endless Mode. Challenge progress is saved separately. A shared expiry keeps the secret speed boost consistent between modes.
+
+To review: tap Extras, then Challenge Mode. The opening planting sequence leads into gameplay. Drag left/right to steer, collect water, and avoid hazards. Pause opens the pause menu; Main Menu returns to the original game. Play starts the normal 100,000-meter climb; Extras > Endless Mode continues beyond space. Settings & More contains volume, reduced motion, gameplay hints, auto-pause, and haptics preferences. Supported iPhones provide event and continuous dirt/rain feedback when enabled. Progress/settings are stored locally, including Challenge records. Backgrounding pauses gameplay and audio in the active mode.
+
+Easter egg disclosure: tap Haptic feedback ten times within four seconds in Settings to activate double simulation speed for five minutes. The boost carries between modes. No purchase or login is required. The Moon feature remains disabled.
+
+Purpose and audience: a casual skill-based arcade game providing offline entertainment through short runs, growing a beanstalk from underground to space and unlocking evolutions.
+
+No setup, login credentials, accounts, sample files, ads, purchases, user-generated content, external services, or in-app analytics SDKs are required. All game code, artwork, fonts, and music are bundled locally. The developer has permission to distribute the assets, with font licenses in Credits. No regulated services. Features are consistent across regions; the game is in English.
+
+Validation: all four integration tests passed on iPhone and iPad simulators, covering normal play/audio/touch/persistence, Endless, settings, and Challenge startup/exit/shared native saves/background pause. The signed release archive was exported with development signing and installed/launched on a physical iPhone 14 for testing. No physical iPad installation was requested for this build.

@@ -1,0 +1,3 @@
+Challenge Mode: climb a frozen mountain with tighter gaps and tougher hazards.
+Find Challenge Mode and Endless Mode in the new Extras menu.
+Challenge progress is saved separately. The secret speed boost carries across modes.

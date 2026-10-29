@@ -57,3 +57,8 @@ October 25, 2026 at 10:45 AM America/Detroit: submitted iOS 1.1.1 (12). App Stor
 Review URL: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/b9b13a0a-d0c7-46bc-a524-72b634d36d86
 
 October 29: prepared iOS 1.2.0 (13) from the newly supplied HTML, including Challenge Mode under Extras, shared speed boost, and native save/haptic/lifecycle integration. All four integration tests passed on iPhone and iPad simulators; signed archive/export succeeded. Installed and launched on Luke’s iPhone for testing. No App Store upload/submission. See UPDATE-1.2.0.md.
+
+October 29 at 5:28 PM America/Detroit: upload of iOS 1.2.0 (13) succeeded. App Store Connect draft 1.2.0 has the in-game CHANGELOG as What’s New and updated Challenge review instructions. Apple build processing and final review submission pending.
+
+October 29, 2026 at 5:35 PM America/Detroit: submitted iOS 1.2.0 (13). App Store Connect confirms Waiting for Review. Upload succeeded at 5:28 PM. Submission ID: bf78ad17-67f6-4ad8-8acd-f90c584d8a10. Build ID: 34e6ff19-5411-42fa-be5b-476f227bb3b4. Automatic release after approval to all users; existing rating retained. What’s New contains the three active in-game CHANGELOG entries, with updated Challenge/Extras review instructions. Existing description, support URL, privacy label and iPhone/iPad screenshot assets carried forward. Initial export reported a Program License Agreement block; account access was restored and the retry succeeded. No legal agreement was accepted by the agent.
+Review URL: https://appstoreconnect.apple.com/apps/6818844668/distribution/reviewsubmissions/details/bf78ad17-67f6-4ad8-8acd-f90c584d8a10

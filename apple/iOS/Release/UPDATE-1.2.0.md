@@ -14,4 +14,4 @@ Verification: four WKWebView integration tests passed on each of iPhone 17 Pro a
 Archive: /tmp/Beanbound-1.2.0-build13.xcarchive
 Development export: /tmp/Beanbound-1.2.0-build13-development
 
-This is a device test build. No App Store upload or submission was performed. The root web index and tvOS resources have not been updated to Challenge Mode in this change; native sources are under apple/.
+Initially delivered as a device test build. Subsequently uploaded and submitted to Apple on October 29 at 5:35 PM America/Detroit; status Waiting for Review. See STATUS.md and SUBMISSION-1.2.0.jpg. The root web index and tvOS resources have not been updated to Challenge Mode in this change; native sources are under apple/.
