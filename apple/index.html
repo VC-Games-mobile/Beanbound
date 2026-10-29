@@ -606,12 +606,12 @@
   <div class="mtop">
     <h1>Beanbound</h1>
     <p class="tag">Grow a beanstalk from deep underground all the way to space.</p>
-    <p class="tag menu-version">V1.1.1</p>
+    <p class="tag menu-version">V1.2.0</p>
   </div>
   <div class="mbottom">
     <div class="stack">
       <button id="play" class="btn">Play</button>
-      <button id="endless" class="btn alt">Endless Mode</button>
+      <button id="extrasBtn" class="btn alt">Extras</button>
       <button id="menuHow" class="btn alt">How to Play</button>
       <button id="settingsBtn" class="btn alt">Settings &amp; More</button>
     </div>
@@ -669,6 +669,17 @@
     </section>
 
     <button id="howBack" class="btn">Back</button>
+  </div>
+</div>
+
+<div id="extras" class="overlay solid hidden" role="dialog" aria-labelledby="extrasTitle">
+  <div class="card">
+    <h2 id="extrasTitle">Extras</h2>
+    <div class="stack">
+      <button id="modeChallenge" class="btn alt">Challenge Mode</button>
+      <button id="endless" class="btn alt">Endless Mode</button>
+      <button id="extrasBack" class="btn alt">Back</button>
+    </div>
   </div>
 </div>
 
@@ -750,7 +761,7 @@
     <h2 id="aboutTitle">About Beanbound</h2>
     <p class="lead">A tiny game about growing a bean all the way to space.</p>
     <div class="settings-list">
-      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.1.1 — Latest release</span></div></div>
+      <div class="setting-row"><div class="setting-copy"><b>Version</b><span>1.2.0 — Latest release</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Developer</b><span>LokeWorks</span></div></div>
       <div class="setting-row"><div class="setting-copy"><b>Saved data</b><span>Your progress and settings are stored locally on this device.</span></div></div>
     </div>
@@ -824,7 +835,10 @@
   </div>
 </div>
 
+<iframe id="challengeFrame" title="Beanbound: Challenge Edition" hidden style="position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9999;background:#15151F"></iframe>
 <iframe id="moonFrame" title="Beanbound: Moon" hidden style="position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9999;background:#15151F"></iframe>
+
+
 
 
 <div id="count" class="hidden">3</div>
@@ -850,12 +864,11 @@
   // version / what's new
   // change these two values when releasing an update. Keep the changelog text here
   // so it is quick to edit without touching the update-board logic
-  const CURRENT_VERSION = '1.1.1';
+  const CURRENT_VERSION = '1.2.0';
   const CHANGELOG = [
-    'New settings are here! Open Settings to customise your game.',
-    'Separate volume sliders for music and sound effects.',
-    'Reduced motion option turns off screen shake, particles, and flashing effects.',
-    'Fun fact: the haptic feedback switch is more fun to tap than it looks. Try it a few times.'
+    'Challenge Mode: climb a frozen mountain with tighter gaps and tougher hazards.',
+    'Find Challenge Mode and Endless Mode in the new Extras menu.',
+    'Challenge progress is saved separately. The secret speed boost carries across modes.'
   ];
   const SAVED_VERSION_KEY = 'beanbound2-version';
   const SAVED_CHANGELOG_KEY = 'beanbound2-changelog';
@@ -1074,6 +1087,8 @@
   let AC = null, muted = false;
   function initAudio() {
     try {
+      // let the game's sound mix with other apps (calls, YouTube, music) instead of taking over the phone's audio
+      if (navigator.audioSession) navigator.audioSession.type = 'ambient';
       if (!AC) {
         AC = new (window.AudioContext || window.webkitAudioContext)();
         // on a wrapped WebView (game apps typically allow autoplay) this
@@ -1959,11 +1974,20 @@
   // secret: tap "Haptic feedback" 10 times fast -> 2x game speed for 5 minutes
   // (or until the game is restarted / the page is reloaded)
   const SPEED_TAPS = 10, SPEED_WINDOW = 4000, SPEED_DURATION = 5 * 60 * 1000;
-  let speedBoostUntil = 0, speedTaps = [], speedTapsStartHaptics = true;
-  function speedBoostActive() {
-    if (speedBoostUntil && performance.now() >= speedBoostUntil) speedBoostUntil = 0;
-    return speedBoostUntil > 0;
+  // shared 2x speed boost: one expiry time kept in localStorage so Earth, Moon and Challenge all see it
+  const BOOST_KEY = 'beanbound-speed-boost-until';
+  let boostUntilCache = 0, boostReadT = 0;
+  function boostUntilGet() {
+    const n = Date.now();
+    if (n - boostReadT > 500) { boostReadT = n; try { boostUntilCache = parseInt(localStorage.getItem(BOOST_KEY) || '0', 10) || 0; } catch (e) {} }
+    return boostUntilCache;
   }
+  function boostUntilSet(t) {
+    boostUntilCache = t; boostReadT = Date.now();
+    try { localStorage.setItem(BOOST_KEY, String(t)); } catch (e) {}
+  }
+  let speedTaps = [], speedTapsStartHaptics = true;
+  function speedBoostActive() { return Date.now() < boostUntilGet(); }
   function showSpeedToast(msg) {
     try {
       const t = document.createElement('div');
@@ -1975,11 +1999,11 @@
     } catch (e) {}
   }
   function startSpeedBoost() {
-    speedBoostUntil = performance.now() + SPEED_DURATION;
+    boostUntilSet(Date.now() + SPEED_DURATION);
     showSpeedToast('2x speed for 5 minutes!');
   }
   function cancelSpeedBoost() {
-    if (speedBoostUntil) { speedBoostUntil = 0; showSpeedToast('Speed back to normal'); }
+    if (speedBoostActive()) { boostUntilSet(0); showSpeedToast('Speed back to normal'); }
   }
 
   function toggleHaptics() {
@@ -2102,7 +2126,7 @@
     musicLevel = MUSIC_GAME;
     applyMusicVolume(0.8);
     reset();
-    hide(startEl); hide(overEl); hide(pauseEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
+    hide(startEl); hide(overEl); hide(pauseEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide($('extras')); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
     hudEl.classList.add('hidden');
     state = 'intro';
     requestWakeLock();
@@ -2115,7 +2139,7 @@
   function toMenu() {
     setHapticEnvironment('none');
     endless = false;
-    hide(pauseEl); hide(overEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
+    hide(pauseEl); hide(overEl); hide(howEl); hide(evosEl); hide(settingsEl); hide(endlessInfoEl); hide($('extras')); hide(aboutEl); hide(victoryRoomEl); hide(moonSceneEl); hide(countEl);
     hudEl.classList.add('hidden'); hintEl.classList.add('hidden');
     ptr = null;
     victoryDone = false;
@@ -2415,6 +2439,10 @@
   $('endless').addEventListener('click', () => {
     startGame(false, true);
   });
+  $('extrasBtn').addEventListener('click', () => { initAudio(); sfx.pop(); hide(startEl); show($('extras')); });
+  $('extrasBack').addEventListener('click', () => { hide($('extras')); show(startEl); });
+  // Challenge Mode is the Challenge Edition game: no second main menu, it opens straight into its planting cutscene
+  $('modeChallenge').addEventListener('click', () => { hide($('extras')); show(startEl); stopMusic(); openChallenge(); });
   $('endlessInfoBack').addEventListener('click', () => {
     hide(endlessInfoEl);
     show(startEl);
@@ -2461,9 +2489,17 @@
     try { f.srcdoc = document.getElementById('moonSrc').textContent.replace(/<\\\/script/g, '</script'); } catch (err) { return; }
     f.hidden = false;
   }
+  function openChallenge() {
+    if (AC) AC.suspend();
+    const f = $('challengeFrame');
+    try { const source = $('challengeSrc'); if(source) f.srcdoc = JSON.parse(source.textContent); else f.src = 'challenge.html'; } catch (err) { return; }
+    f.hidden = false;
+  }
   window.addEventListener('message', ev => {
-    if (ev.data !== 'beanbound:earth') return;
-    const f = $('moonFrame'); f.hidden = true; f.removeAttribute('srcdoc'); f.src = 'about:blank';
+    if (ev.data !== 'beanbound:earth' || ev.source !== $('challengeFrame').contentWindow) return;
+    const wasChallenge = !$('challengeFrame').hidden;
+    ['moonFrame', 'challengeFrame'].forEach(id => { const f = $(id); f.hidden = true; f.removeAttribute('srcdoc'); f.src = 'about:blank'; });
+    if (wasChallenge) { try { if(AC)AC.resume(); startMusic(); } catch (err) {} }
   });
   $('shareScore').addEventListener('click', async () => {
     const shareText = `I just reached ${fmt(score)}m in Beanbound!`;
@@ -2486,7 +2522,7 @@
   $('moonPlayAgain').addEventListener('click', () => { toMenu(); });
   $('openEvos').addEventListener('click', () => { buildEvos(); hide(settingsEl); show(evosEl); });
   $('evosBack').addEventListener('click', () => { hide(evosEl); show(settingsEl); updateSettingsUI(); });
-  $('howBack').addEventListener('click', () => { hide(howEl); show(settingsEl); updateSettingsUI(); });
+  $('howBack').addEventListener('click', () => { hide(howEl); show(startEl); });
   $('seedPackInfoBtn').addEventListener('click', () => {
     const panel = $('seedInfoPanel');
     const open = panel.classList.toggle('hidden') === false;
@@ -3497,7 +3533,8 @@
       return true;
     }
     if (!evosEl.classList.contains('hidden')) { hide(evosEl); show(settingsEl); updateSettingsUI(); return true; }
-    if (!howEl.classList.contains('hidden')) { hide(howEl); show(settingsEl); updateSettingsUI(); return true; }
+    if (!howEl.classList.contains('hidden')) { hide(howEl); show(startEl); return true; }
+    if (!$('extras').classList.contains('hidden')) { hide($('extras')); show(startEl); return true; }
     if (!endlessInfoEl.classList.contains('hidden')) { hide(endlessInfoEl); show(startEl); return true; }
     if (!moonSceneEl.classList.contains('hidden')) { toMenu(); return true; }
     if (!victoryRoomEl.classList.contains('hidden')) { toMenu(); return true; }

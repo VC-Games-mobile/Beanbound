@@ -66,7 +66,7 @@ final class GameTests: XCTestCase {
         app.window!.rootViewController = game
         try await ready(game)
         try await Task.sleep(nanoseconds: 3_000_000_000)
-        _ = try await evaluate("document.getElementById('whatsNewDismiss').click();document.getElementById('overMenu').click()", in: game)
+        _ = try await evaluate("document.getElementById('whatsNewDismiss').click();document.getElementById('overMenu').click();document.getElementById('extrasBtn').click()", in: game)
         let visible = try await evaluate("(() => {const b=document.getElementById('endless');const r=b.getBoundingClientRect();return !b.hidden && getComputedStyle(b).display!=='none' && r.width>0})()", in: game) as? Bool
         XCTAssertEqual(visible, true)
         _ = try await evaluate("document.getElementById('endless').click();document.getElementById('restart').click()", in: game)
@@ -99,6 +99,44 @@ final class GameTests: XCTestCase {
         let settings = try await evaluate("document.getElementById('musicVol').value==='25' && document.getElementById('sfxVol').value==='70' && document.getElementById('reducedMotionToggle').getAttribute('aria-checked')==='true'", in: next) as? Bool
         XCTAssertEqual(settings, true, "Independent volume and motion preferences survive native reload")
         _ = try await evaluate("document.getElementById('musicVol').value='100';document.getElementById('musicVol').dispatchEvent(new Event('input'));document.getElementById('sfxVol').value='100';document.getElementById('sfxVol').dispatchEvent(new Event('input'));document.getElementById('reducedMotionToggle').click()", in: next)
+    }
+
+    func testChallengeNativeIntegration() async throws {
+        let app = UIApplication.shared.delegate as! AppDelegate
+        let game = GameViewController()
+        app.window!.rootViewController = game
+        try await ready(game)
+        game.webView.configuration.userContentController.addUserScript(WKUserScript(source: "window.addEventListener('error',e=>window.testLoadError=String(e.message)+' at '+e.lineno)", injectionTime: .atDocumentStart, forMainFrameOnly: false))
+        _ = try await evaluate("document.getElementById('extrasBtn').click();document.getElementById('modeChallenge').click()", in: game)
+        var loaded = false
+        for _ in 0..<100 {
+            if (try? await evaluate("!!document.getElementById('challengeFrame').contentWindow.beanboundNative", in: game)) as? Bool == true { loaded = true; break }
+            try await Task.sleep(nanoseconds: 100_000_000)
+        }
+        if !loaded {
+            let detail = try await evaluate("(() => {const f=document.getElementById('challengeFrame');return {src:f.src,error:f.contentWindow.testLoadError,html:f.contentDocument?.documentElement?.outerHTML.slice(-1000)}})()", in: game)
+            XCTFail("Challenge initialization: \(String(describing: detail))")
+        }
+        guard loaded else { return }
+        _ = try await evaluate("var challenge=document.getElementById('challengeFrame').contentWindow;challenge.document.getElementById('restart').click()", in: game)
+        let playing = try await evaluate("challenge.beanboundNative.snapshot().state==='play' && typeof challenge.beanboundHaptic==='function' && challenge.localStorage===window.localStorage", in: game) as? Bool
+        XCTAssertEqual(playing, true, "Challenge uses native haptics and shared native storage")
+        _ = try await evaluate("challenge.localStorage.setItem('beanbound-challenge-test','saved');beanboundNative.background()", in: game)
+        try await Task.sleep(nanoseconds: 100_000_000)
+        let paused = try await evaluate("challenge.beanboundNative.snapshot().state==='paused' && challenge.beanboundNative.snapshot().audio==='suspended'", in: game) as? Bool
+        XCTAssertEqual(paused, true, "Backgrounding pauses and silences the active mode")
+        _ = try await evaluate("beanboundNative.foreground();challenge.parent.postMessage('beanbound:earth','*')", in: game)
+        // Use the actual child exit button to verify the sender-checked return path.
+        _ = try await evaluate("challenge.document.getElementById('overMenu').click()", in: game)
+        try await Task.sleep(nanoseconds: 200_000_000)
+        let returned = try await evaluate("document.getElementById('challengeFrame').hidden", in: game) as? Bool
+        XCTAssertEqual(returned, true)
+        let next = GameViewController()
+        app.window!.rootViewController = next
+        try await ready(next)
+        let saved = try await evaluate("localStorage.getItem('beanbound-challenge-test')", in: next) as? String
+        XCTAssertEqual(saved, "saved")
+        _ = try await evaluate("localStorage.removeItem('beanbound-challenge-test')", in: next)
     }
 
 }

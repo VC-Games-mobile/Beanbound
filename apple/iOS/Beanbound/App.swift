@@ -42,7 +42,7 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 0.078, green: 0.239, blue: 0.227, alpha: 1)
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setCategory(.ambient, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
         } catch { NSLog("Beanbound audio: %@", error.localizedDescription) }
         let controller = WKUserContentController()
@@ -56,6 +56,14 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
         // Use native storage so updates and changing bundle paths preserve saves.
         let bridge = """
         (() => {
+          if (window !== window.top) {
+            Object.defineProperty(window, 'localStorage', {value: window.top.localStorage});
+            window.beanboundEnvironment = kind => window.top.beanboundEnvironment(kind);
+            window.beanboundHaptic = kind => window.top.beanboundHaptic(kind);
+            navigator.vibrate = () => { window.beanboundHaptic('light'); return true; };
+            navigator.share = data => window.top.navigator.share(data);
+            return;
+          }
           const values = \(json);
           const storage = {
             getItem(key) { return Object.prototype.hasOwnProperty.call(values, String(key)) ? values[String(key)] : null; },
@@ -72,7 +80,7 @@ final class GameViewController: UIViewController, WKScriptMessageHandler, WKNavi
           navigator.share = async data => { window.webkit.messageHandlers.share.postMessage({text: String(data.text || '')}); };
         })();
         """
-        controller.addUserScript(WKUserScript(source: bridge, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        controller.addUserScript(WKUserScript(source: bridge, injectionTime: .atDocumentStart, forMainFrameOnly: false))
         let configuration = WKWebViewConfiguration()
         configuration.userContentController = controller
         configuration.websiteDataStore = .default()
